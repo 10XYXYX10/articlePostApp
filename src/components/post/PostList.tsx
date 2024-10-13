@@ -21,8 +21,7 @@ const PostList = async({
   //////////
   //■[ データ取得 ]
   const {result,message,data} = await getPostWithThumbnailList({userId,search,sort,page,fetchCount,});
-  //if(!result || !data)throw new Error(message);
-  if(result || !data)return <p>{message}</p>
+  if(!result || !data)throw new Error(message);
 
   //////////
   //■[ next,prev ]
