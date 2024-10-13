@@ -10,7 +10,7 @@ export default function Error({
 }){
 
   useEffect(() => {
-    if(process.env.NODE_ENV==='production'){
+    if(process.env.NODE_ENV!=='production'){
       console.log('Something went wrong!')
     }else{
       console.error(error)
