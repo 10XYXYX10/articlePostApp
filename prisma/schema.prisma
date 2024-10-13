@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     Int     @id @default(autoincrement())
+  name                   String
+  hashedPassword         String
+  email                  String  @unique
+  verifiedEmail          Boolean
+  authenticationPassword Int //ログイン時の認証パスワード
+
+  Post      Post[]
+  Thumbnail Thumbnail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+
+  title       String
+  description String
+  content     String //マークダウン記法対応
+
+  thumbnailId Int?
+  Thumbnail   Thumbnail? @relation(fields: [thumbnailId], references: [id], onDelete: SetNull)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Thumbnail {
+  id     Int    @id @default(autoincrement())
+  path   String @unique
+  width  Int
+  height Int
+  size   Int
+  type   String //jpg
+  Post   Post[]
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
