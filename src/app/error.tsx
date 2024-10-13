@@ -10,7 +10,7 @@ export default function Error({
 }){
 
   useEffect(() => {
-    if(process.env.NODE_ENV!=='production'){
+    if(process.env.NODE_ENV==='production'){
       console.log('Something went wrong!')
     }else{
       console.error(error)
@@ -23,7 +23,7 @@ export default function Error({
         <p className="text-lg font-semibold text-red-600">Data fetching in server failed</p>
         <p className="text-gray-500">🙇データの取得に失敗しました。リロードしてもう一度お試し下さい🙇</p>
         <p className="text-sm text-gray-400">
-          {process.env.NODE_ENV!=='production'
+          {process.env.NODE_ENV==='production'
             ?(
               'Something went wrong!'
             ):(
