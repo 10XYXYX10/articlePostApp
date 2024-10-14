@@ -21,7 +21,7 @@ export const saveFile = async(Key:string, Body:Buffer): Promise<{result:boolean,
         );
         return {result:true, message:'success'}
     }catch(err){
-        const message = err instanceof Error ?  err.message : `Something went wrong.`;
+        const message = err instanceof Error ?  `saveFile error. ${err.message}` : `Something went wrong.`;
         return {result:false, message};
     }
 }

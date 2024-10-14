@@ -78,7 +78,6 @@ export const getPostWithThumbnailList = async({
 
         //////////
         //■[ データ取得 ]
-        console.log(optionOb)
         const productList = await prisma.post.findMany(optionOb);
 
         return {

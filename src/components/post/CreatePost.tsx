@@ -85,7 +85,7 @@ const CreatePost = ({
                 }
             );
             alert('success');
-            router.push(`/user/${user}`);
+            router.push(`/user/${user.id}`);
         } catch (err) { 
             let message = 'Something went wrong. Please try again.';
             if (axios.isAxiosError(err)) {

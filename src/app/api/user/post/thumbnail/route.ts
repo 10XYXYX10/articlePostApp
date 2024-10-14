@@ -32,6 +32,8 @@ export async function POST(request: Request) {
         if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
         const file = Buffer.from(await fileFormForm?.arrayBuffer());
 
+        if(!file)throw new Error(`XXX`)
+
         // //////////
         // //◆【非同期でゴミ掃除】
         deleteThumbnails().catch((err)=>console.log(err.message));
