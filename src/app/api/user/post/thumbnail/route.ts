@@ -7,7 +7,6 @@ import { deleteFile, saveFile } from "@/lib/s3";
 
 export async function POST(request: Request) {
     try{
-        if(1)throw new Error('aaassss')
         //////////
         //■[ セキュリティー ]
         const {result,data,message} = await security();
@@ -31,6 +30,11 @@ export async function POST(request: Request) {
         console.log('thumbnail-post-request')
         const formData = await request.formData();
         const fileFormForm = typeVal==='jpg' ? formData.get("jpg") : formData.get("png");
+        try{
+            if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
+        }catch(err){
+            return NextResponse.json( {message:'ABCDEFG'}, {status:400});
+        }
         if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
         const file = Buffer.from(await fileFormForm?.arrayBuffer());
 
