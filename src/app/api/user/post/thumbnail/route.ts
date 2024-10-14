@@ -27,6 +27,7 @@ export async function POST(request: Request) {
 
         //////////
         //■[ request ]
+        console.log('thumbnail-post-request')
         const formData = await request.formData();
         const fileFormForm = typeVal==='jpg' ? formData.get("jpg") : formData.get("png");
         if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
@@ -34,10 +35,17 @@ export async function POST(request: Request) {
 
         if(!file)throw new Error(`XXX`)
 
+        if(1)throw new Error(String(file).slice(0,50))
+
+
+        if(1)throw new Error('aaa')
+
         // //////////
         // //◆【非同期でゴミ掃除】
         deleteThumbnails().catch((err)=>console.log(err.message));
 
+
+        if(1)throw new Error('bbb')
 
         //////////
         //◆【uploadOriginFilePath】

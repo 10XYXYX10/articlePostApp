@@ -206,7 +206,7 @@ const EditedThumbnail = memo( ({
             } else if (err instanceof Error) {
                 message = err.message;
             }
-            alert(message);
+            alert(message+'ZZ');
             setError(message);
         }
         setLoadingFlag(false); 
