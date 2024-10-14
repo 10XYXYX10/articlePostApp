@@ -30,29 +30,12 @@ export async function POST(request: Request) {
         console.log('thumbnail-post-request')
         const formData = await request.formData();
         const fileFormForm = typeVal==='jpg' ? formData.get("jpg") : formData.get("png");
-        try{
-            if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
-        }catch(err){
-            const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;
-            console.log(message)
-            return NextResponse.json( {message:'ABCDEFG'}, {status:400});
-        }
-        if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
+        if(!fileFormForm || !(fileFormForm instanceof Blob) )return NextResponse.json( {message:'Bad request.zz'}, {status:400});
         const file = Buffer.from(await fileFormForm?.arrayBuffer());
-
-        if(!file)throw new Error(`XXX`)
-
-        if(1)throw new Error(String(file).slice(0,50))
-
-
-        if(1)throw new Error('aaa')
 
         // //////////
         // //◆【非同期でゴミ掃除】
         deleteThumbnails().catch((err)=>console.log(err.message));
-
-
-        if(1)throw new Error('bbb')
 
         //////////
         //◆【uploadOriginFilePath】
