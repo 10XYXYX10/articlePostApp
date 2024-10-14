@@ -192,7 +192,7 @@ const EditedThumbnail = memo( ({
         } catch (err) { 
             let message = 'Something went wrong. Please try again.';
             if (axios.isAxiosError(err)) {
-                if(err.response?.data.message)message = err.response.data.message;
+                if(err.response?.data.message)message = err.response.data.message+'：error-a';
                 //401,Authentication failed.
                 if(err.response?.status){
                     if(err.response.status===401){
@@ -204,9 +204,9 @@ const EditedThumbnail = memo( ({
                     }
                 }
             } else if (err instanceof Error) {
-                message = err.message;
+                message = err.message+'：error-b';
             }
-            alert(message+'ZZ');
+            alert(message);
             setError(message);
         }
         setLoadingFlag(false); 

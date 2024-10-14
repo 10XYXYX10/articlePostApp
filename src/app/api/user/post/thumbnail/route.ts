@@ -7,6 +7,7 @@ import { deleteFile, saveFile } from "@/lib/s3";
 
 export async function POST(request: Request) {
     try{
+        if(1)throw new Error('aaassss')
         //////////
         //■[ セキュリティー ]
         const {result,data,message} = await security();
