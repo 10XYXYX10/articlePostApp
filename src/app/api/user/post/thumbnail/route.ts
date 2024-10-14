@@ -33,6 +33,8 @@ export async function POST(request: Request) {
         try{
             if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
         }catch(err){
+            const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;
+            console.log(message)
             return NextResponse.json( {message:'ABCDEFG'}, {status:400});
         }
         if(!fileFormForm || !(fileFormForm instanceof File) )return NextResponse.json( {message:'Bad request.'}, {status:400});
