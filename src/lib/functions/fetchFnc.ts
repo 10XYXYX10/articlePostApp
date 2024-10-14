@@ -56,12 +56,15 @@ export const getPostWithThumbnailList = async({
                     ]
                 })) 
             }
-            //optionOb更新
+        }
+        //optionOb更新
+        if(userId){
             optionOb = {
                 ...optionOb,
                 where:whereOb
-            }
+            }            
         }
+
         //・optionObにorderBy,skip,takeを追加
         optionOb = {
             ...optionOb,
@@ -75,6 +78,7 @@ export const getPostWithThumbnailList = async({
 
         //////////
         //■[ データ取得 ]
+        console.log(optionOb)
         const productList = await prisma.post.findMany(optionOb);
 
         return {
