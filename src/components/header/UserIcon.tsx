@@ -44,7 +44,7 @@ const UserIcon = () => {
             {user.name && <SignOut/>}
             <Link
                 href={user.id ? `/user/${user.id}` : '/user'}
-                prefetch={true}//デフォルト
+                prefetch={false}//更新が即座に反映されない場合が
                 className={`rounded-full p-2 hover:opacity-75 inline-block my-1 ${pathname.startsWith('/user')?'bg-red-400':'bg-gray-400'}`}
             >
                 {user.name

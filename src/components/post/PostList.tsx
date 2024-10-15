@@ -28,7 +28,10 @@ const PostList = async({
   let queryParameter:string = `?page=${page}`;
   queryParameter+=`&sort=${sort}&`;
   if(search)queryParameter+=`&search=${search}`;
-  const url = new URL(`${process.env.NEXT_PUBLIC_APP_URL}/user/${userId}?${queryParameter}`);
+  const url = userId
+    ? new URL(`${process.env.NEXT_PUBLIC_APP_URL}/user/${userId}?${queryParameter}`)
+    : new URL(`${process.env.NEXT_PUBLIC_APP_URL}?${queryParameter}`)
+  ;
   const params = new URLSearchParams(url.search);
   let nextPageUrl='';
   let prevPageUrl='';
