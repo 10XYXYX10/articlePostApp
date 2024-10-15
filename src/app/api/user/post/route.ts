@@ -161,8 +161,6 @@ export async function DELETE(request: NextRequest) {
         //////////
         //■[ revalidate ]
         revalidatePath(`/post/${targetPost.id}`);
-        revalidatePath(`/user/${userId}`);
-        revalidatePath(`/`);
 
         //////////
         //■[ return ]

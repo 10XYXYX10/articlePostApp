@@ -128,6 +128,8 @@ const EditedPostCc = ({
         try{
             await axios.delete<{message:string}>(`${apiUrl}/user/post?postId=${post.id}`);
             router.push(`/user/${user.id}`);
+            router.refresh()
+            console.log('router.push~router.refresh')
         }catch(err){
             let message = 'Something went wrong. Please try again.';
             if (axios.isAxiosError(err)) {
