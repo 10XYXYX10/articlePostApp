@@ -94,8 +94,6 @@ export async function PUT(request: NextRequest) {
                 thumbnailId,
             }
         });
-
-        console.log(`revalidatePath：/post/${targetPost.id}`)
         revalidatePath(`/post/${targetPost.id}`);
 
         //////////
@@ -160,11 +158,14 @@ export async function DELETE(request: NextRequest) {
             throw new Error(message);
         });
         
-        console.log(`revalidatePath：/post/${targetPost.id}`)
+        //////////
+        //■[ revalidate ]
         revalidatePath(`/post/${targetPost.id}`);
+        revalidatePath(`/user/${userId}`);
+        revalidatePath(`/`);
 
         //////////
-        //◆【return】
+        //■[ return ]
         return NextResponse.json({message:'succes!!'},{status:200});
 
     }catch(err){
