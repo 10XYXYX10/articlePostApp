@@ -57,17 +57,10 @@ export const getPostWithThumbnailList = async({
                 })) 
             }
         }
-        //optionOb更新
-        if(userId){
-            optionOb = {
-                ...optionOb,
-                where:whereOb
-            }            
-        }
-
         //・optionObにorderBy,skip,takeを追加
         optionOb = {
             ...optionOb,
+            where:whereOb,
             orderBy: { createdAt:sort }
         }
         optionOb = {

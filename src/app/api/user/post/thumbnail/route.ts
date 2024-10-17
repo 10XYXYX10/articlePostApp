@@ -27,10 +27,9 @@ export async function POST(request: Request) {
 
         //////////
         //■[ request ]
-        console.log('thumbnail-post-request')
         const formData = await request.formData();
         const fileFormForm = typeVal==='jpg' ? formData.get("jpg") : formData.get("png");
-        if(!fileFormForm || !(fileFormForm instanceof Blob) )return NextResponse.json( {message:'Bad request.zz'}, {status:400});
+        if(!fileFormForm || !(fileFormForm instanceof Blob) )return NextResponse.json( {message:'Bad request.'}, {status:400});
         const file = Buffer.from(await fileFormForm?.arrayBuffer());
 
         // //////////

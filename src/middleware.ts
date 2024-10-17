@@ -4,16 +4,11 @@ import { securityOnMiddleware } from './lib/functions/seculity';
 export const middleware = async(request: NextRequest) => {
     const response = NextResponse.next()
 
-    const redirectUrl = request.nextUrl.clone();
-    const pathName = redirectUrl.pathname;
     const jwtEncoded = request.cookies.get('accessToken')?.value;
-    const {result,authUser} = await securityOnMiddleware(jwtEncoded);
+    const {result} = await securityOnMiddleware(jwtEncoded);
 
-    if(result && pathName.startsWith('/auth') && authUser){
-      redirectUrl.pathname = `/user/${authUser.id}`;
-      return NextResponse.redirect(redirectUrl)
-
-    }else if(!result && pathName.startsWith('/user')){
+    if(!result){
+      const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/auth';
       if(request.cookies.has('accessToken')){
         const response = NextResponse.redirect(redirectUrl)
@@ -27,5 +22,5 @@ export const middleware = async(request: NextRequest) => {
 };
 
 export const config = {
-  matcher: ['/user/:path*','/auth/:path*'],
+  matcher: ['/user/:path*'],
 };

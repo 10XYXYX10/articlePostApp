@@ -17,7 +17,6 @@ const MarkdownTextarea = memo( ({
     markdownFormData,
     setMarkdownFormData,
 }:MarkdownTextareaPropsType) => {
-    console.log('MarkdownTextarea')
     const [showModal,setShowModal] = useState(false);
     const [dispScreenNum,setDispScreenNum] = useState<1|2>(1);
 

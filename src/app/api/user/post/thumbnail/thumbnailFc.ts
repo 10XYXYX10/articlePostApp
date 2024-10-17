@@ -38,7 +38,7 @@ export const deleteThumbnails = async():Promise<void> => {
                 throw new Error(message);
             });
         }
-        console.log('success!!deleteThumnails')
+        //console.log('success!!deleteThumnails')
     }catch(err){
         const message = err instanceof Error ?  `${err.message}.` : `Something went wrong.`;
         console.log( message);
