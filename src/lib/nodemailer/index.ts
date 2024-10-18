@@ -1,4 +1,5 @@
 //https://myaccount.google.com/apppasswords
+//https://nodemailer.com/
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
@@ -23,16 +24,14 @@ export const sendMail = async ({
     html:string
 }): Promise<{result:boolean,message:string}> =>{
     try{
-        // メールの内容
-        const mailOptions1 = {
+        //送信
+        await transporter.sendMail({
             from: process.env.gmailUser,
             to: toEmail,
             subject,
             text,
             html,
-        };
-        //送信
-        await transporter.sendMail(mailOptions1);
+        });
         //成功!!
         return {result:true,message:'success'}
     }catch(err){
