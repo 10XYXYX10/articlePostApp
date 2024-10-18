@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { securityOnMiddleware } from './lib/functions/seculity';
+import { security } from './lib/functions/seculity';
 
 export const middleware = async(request: NextRequest) => {
     const response = NextResponse.next()
 
+    console.log('middleware')
+
     const jwtEncoded = request.cookies.get('accessToken')?.value;
-    const {result} = await securityOnMiddleware(jwtEncoded);
+    const {result} = await security(jwtEncoded);
 
     if(!result){
       const redirectUrl = request.nextUrl.clone();

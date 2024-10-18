@@ -1,5 +1,5 @@
 import { security } from "@/lib/functions/seculity";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 //ログインチェック
 export async function GET() {
@@ -21,25 +21,25 @@ export async function GET() {
 }
 
 //ログインチェック:middleware
-export async function PATCH(request: NextRequest) {
-    try{
-        //////////
-        //■[ request ]
-        const requestBody = await request.json();
-        const jwtEncoded = requestBody.jwtEncoded as string;
-        if(!jwtEncoded)throw new Error('Authentication error.');
+// export async function PATCH(request: NextRequest) {
+//     try{
+//         //////////
+//         //■[ request ]
+//         const requestBody = await request.json();
+//         const jwtEncoded = requestBody.jwtEncoded as string;
+//         if(!jwtEncoded)throw new Error('Authentication error.');
 
-        //////////
-        //■[ セキュリティー ]
-        const {result,data,message} = await security(jwtEncoded);
-        if(!result || !data)throw new Error(message)
+//         //////////
+//         //■[ セキュリティー ]
+//         const {result,data,message} = await security(jwtEncoded);
+//         if(!result || !data)throw new Error(message)
 
-        //////////
-        //■[ return ]
-        return NextResponse.json( {authUser:data} , { status: 200});
-    }catch(err){
-        const messag = err instanceof Error ?  err.message : `Internal Server Error.`;
-        console.log(`err.message-api:${messag}`)
-        return NextResponse.json( {messag}, { status: 500});
-    }
-}
+//         //////////
+//         //■[ return ]
+//         return NextResponse.json( {authUser:data} , { status: 200});
+//     }catch(err){
+//         const messag = err instanceof Error ?  err.message : `Internal Server Error.`;
+//         console.log(`err.message-api:${messag}`)
+//         return NextResponse.json( {messag}, { status: 500});
+//     }
+// }

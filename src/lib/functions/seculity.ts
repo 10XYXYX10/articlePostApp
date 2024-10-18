@@ -1,10 +1,8 @@
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { AuthUser } from '@/lib/types';
-import axios from 'axios';
 import * as jose from 'jose';//middlewareで動かす場合、jsonwebtokenではエラーとなる
 const jwtKeyFromEnv = process.env.jwtHashKey as string;
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 //認証パスワード：6桁のランダムな数値
 export const generateRandomNumber6 = ():number => {
@@ -159,15 +157,19 @@ export const security = async (jwtEncodedStr?:string):Promise<{
 
         //////////
         //■[ userの存在確認 ]
-        const checkUser = await prisma.user.findUnique({
-            where:{
-                id,
-                name,
-            },
-        });
-        if(!checkUser){
-            if(jwtEncoded)cookies().delete('accessToken');
-            throw new Error('Authentication error.'); 
+        //・middlewareでの認証:JWTのみチェック
+        //・create,update,delete：JWT＋DBでデータチャック
+        if(!jwtEncodedStr){
+            const checkUser = await prisma.user.findUnique({
+                where:{
+                    id,
+                    name,
+                },
+            });
+            if(!checkUser){
+                if(jwtEncoded)cookies().delete('accessToken');
+                throw new Error('Authentication error.'); 
+            }            
         }
 
         //////////
@@ -191,28 +193,32 @@ export const security = async (jwtEncodedStr?:string):Promise<{
     }
 }
 
-export const securityOnMiddleware = async (jwtEncoded:string|undefined):Promise<{
-    result:boolean;
-    authUser:AuthUser|null;
-    message:string,
-}> => {
-    try{
-        const {data} = await axios.patch<{authUser:AuthUser}>(`${apiUrl}/auth`,{jwtEncoded});//middlewareで動かす場合、直でprismaを使用しようとするとエラーとなる
-        if(!data.authUser)throw new Error('Something went wrong.');
-        return {
-            result:true,
-            authUser:data.authUser,
-            message:'success',
-        }
-    }catch(err){
-        const errMessage = err instanceof Error ?  err.message : `Internal Server Error.`;
-        return {
-            result:false,
-            authUser:null,
-            message:errMessage,
-        };
-    }
-}
+// export const securityOnMiddleware = async (jwtEncoded:string|undefined):Promise<{
+//     result:boolean;
+//     authUser:AuthUser|null;
+//     message:string,
+// }> => {
+//     try{
+//         //■[ middlewareで、直で@prisma/clientを使用しようとするとエラーとなる ]
+//         //・@prisma/client/edge なら可能
+//         //・https://github.com/prisma/prisma/issues/21310    ←　DB セッションの代替手段としてJWTを使用することが提案されている
+//         const {data} = await axios.patch<{authUser:AuthUser}>(`${apiUrl}/auth`,{jwtEncoded});//middlewareで動かす場合、直で@prisma/clientを使用しようとするとエラーとなる
+//         if(!data.authUser)throw new Error('Something went wrong.');
+//         return {
+//             result:true,
+//             authUser:data.authUser,
+//             message:'success',
+//         }
+//     }catch(err){
+//         const errMessage = err instanceof Error ?  err.message : `Internal Server Error.`;
+//         return {
+//             result:false,
+//             authUser:null,
+//             message:errMessage,
+//         };
+//     }
+// }
+
 
 export const saveAccessTokenInCookies = async({
     id,
