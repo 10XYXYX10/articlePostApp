@@ -94,7 +94,7 @@ export const signUp = async (state: SignUpFormState, formData: FormData) => {
             //認証メール送信
             const {result,message} = await sendMail({
                 toEmail: email,
-                subject: 'メールアドレス認証',
+                subject: '二段階認証パスワード',
                 text: '以下のパスワードを入力し、メールアドレス認証を完了させて下さい。有効期限は3分です。',
                 html:`
                     <p>以下のパスワードを入力し、メールアドレス認証を完了させて下さい。有効期限は3分です。</p>
@@ -207,7 +207,7 @@ export const signIn = async (state: SignInFormState, formData: FormData) => {
         //・認証メール送信
         const sendMailResult = await sendMail({
             toEmail: email,
-            subject: 'メールアドレス認証',
+            subject: '2段階認証パスワード',
             text: '以下のパスワードを入力し、メールアドレス認証を完了させて下さい。有効期限は3分です。',
             html:`
                 <p>以下のパスワードを入力し、メールアドレス認証を完了させて下さい。有効期限は3分です。</p>

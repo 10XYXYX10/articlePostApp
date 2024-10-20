@@ -1,5 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+const bucketName = process.env.BUCKET_NAME as string;
 
 const s3Client = new S3Client({
     region: process.env.REGION_NAME,
@@ -14,7 +15,7 @@ export const saveFile = async(Key:string, Body:Buffer): Promise<{result:boolean,
     try{
         await s3Client.send(
             new PutObjectCommand({
-                Bucket: process.env.BUCKET_NAME,
+                Bucket: bucketName,
                 Key,
                 Body,
             }),
@@ -31,23 +32,7 @@ export const deleteFile = async(Key:string): Promise<{result:boolean,message:str
     try{
         await s3Client.send(
             new DeleteObjectCommand({
-                Bucket: process.env.BUCKET_NAME,
-                Key,
-            })
-        );
-        return {result:true, message:'success'}
-    }catch(err){
-        const message = err instanceof Error ?  err.message : `Something went wrong.`;
-        return {result:false, message}
-    }
-}
-
-//存在確認
-export const isFileExist = async (Key: string): Promise<{result:boolean,message:string}> => {
-    try {
-        await s3Client.send(
-            new HeadObjectCommand({
-                Bucket: process.env.BUCKET_NAME,
+                Bucket: bucketName,
                 Key,
             })
         );
