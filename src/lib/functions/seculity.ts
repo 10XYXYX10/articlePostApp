@@ -9,33 +9,6 @@ export const generateRandomNumber6 = ():number => {
     return Math.floor(Math.random() * 900000) + 100000;    
 }
 
-// export const jwtAccessTokenEncode = async({
-//     jwtKey,
-//     objectData
-// }:{
-//     jwtKey:string;
-//     objectData:AuthUser;
-// }):Promise<{
-//     result:boolean;
-//     messag:string;
-//     data:string;
-// }> => {
-//     try{
-//         const token = await jwt.sign(objectData, jwtKey, { expiresIn: '1h' });
-//         return {
-//             result:true,
-//             messag:'success',
-//             data:token
-//         };
-//     }catch(err){
-//         const errMessage = err instanceof Error ?  err.message : `Internal Server Error.`;
-//         return {
-//             result:false,
-//             messag:errMessage,
-//             data:'',
-//         };
-//     }
-// }
 export const jwtAccessTokenEncode = async({
     jwtKey,
     objectData
@@ -68,33 +41,6 @@ export const jwtAccessTokenEncode = async({
     }
 }
 
-// export const jwtAccessTokenDecode = async ({
-//     jwtKey,
-//     jwtEncoded
-// }:{
-//     jwtKey:string;
-//     jwtEncoded:string;
-// }):Promise<{
-//     result:boolean;
-//     messag:string;
-//     data:string|jwt.JwtPayload;
-// }> => {
-//     try{
-//         const jwtDecoded = await jwt.verify(jwtEncoded, jwtKey);
-//         return {
-//             result:true,
-//             messag:'success',
-//             data:jwtDecoded
-//         };
-//     }catch(err){
-//         const errMessage = err instanceof Error ?  `decoded err.${err.message}` : `Internal Server Error.`;
-//         return {
-//             result:false,
-//             messag:errMessage,
-//             data:'',
-//         };
-//     }   
-// }
 export const jwtAccessTokenDecode = async ({
     jwtKey,
     jwtEncoded

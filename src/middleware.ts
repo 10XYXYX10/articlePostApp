@@ -4,13 +4,13 @@ import { security } from './lib/functions/seculity';
 export const middleware = async(request: NextRequest) => {
     const response = NextResponse.next()
 
-    console.log('middleware')
-
     const jwtEncoded = request.cookies.get('accessToken')?.value;
-    const {result} = await security(jwtEncoded);
+    const {result,data} = await security(jwtEncoded);
 
-    if(!result){
-      const redirectUrl = request.nextUrl.clone();
+    const redirectUrl = request.nextUrl.clone();
+    const pathName = redirectUrl.pathname;
+    const userId = Number(pathName.split('/')[2]);
+    if(!result || userId!=data?.id){
       redirectUrl.pathname = '/auth';
       if(request.cookies.has('accessToken')){
         const response = NextResponse.redirect(redirectUrl)

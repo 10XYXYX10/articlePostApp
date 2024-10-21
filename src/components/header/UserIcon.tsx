@@ -18,7 +18,6 @@ const UserIcon = () => {
 
     useEffect(()=>{
         const fetchData = async () =>{
-            console.log(`UserIcon>UseEffect>fetchData`)
             try{
                 const {data} = await axios.get<AuthUser>(`${apiUrl}/auth/`);
                 updateUser(data)

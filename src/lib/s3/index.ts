@@ -1,5 +1,4 @@
-import { S3Client } from '@aws-sdk/client-s3';
-import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client,DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 const bucketName = process.env.BUCKET_NAME as string;
 
 const s3Client = new S3Client({
@@ -13,6 +12,11 @@ const s3Client = new S3Client({
 //保存
 export const saveFile = async(Key:string, Body:Buffer): Promise<{result:boolean,message:string}> => {
     try{
+        new PutObjectCommand({
+            Bucket: bucketName,
+            Key,
+            Body,
+        })
         await s3Client.send(
             new PutObjectCommand({
                 Bucket: bucketName,
@@ -30,6 +34,7 @@ export const saveFile = async(Key:string, Body:Buffer): Promise<{result:boolean,
 //削除
 export const deleteFile = async(Key:string): Promise<{result:boolean,message:string}> => {
     try{
+        //存在しないkeyを指定したとして、エラーにはならない
         await s3Client.send(
             new DeleteObjectCommand({
                 Bucket: bucketName,
