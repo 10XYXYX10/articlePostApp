@@ -2,25 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { security } from './lib/functions/seculity';
 
 export const middleware = async(request: NextRequest) => {
-    const response = NextResponse.next()
+    const responseNext = NextResponse.next()
 
     const jwtEncoded = request.cookies.get('accessToken')?.value;
     const {result,data} = await security(jwtEncoded);
 
-    const redirectUrl = request.nextUrl.clone();
-    const pathName = redirectUrl.pathname;
-    const userId = Number(pathName.split('/')[2]);
-    if(!result || userId!=data?.id){
+    const pathName = request.nextUrl.pathname;
+    const userId = Number(pathName.split('/')[2]);//「/user/<認証済みuserId>」
+    
+    if(!result || userId!=data?.id){    
+      const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/auth';
+      const response = NextResponse.redirect(redirectUrl)
       if(request.cookies.has('accessToken')){
-        const response = NextResponse.redirect(redirectUrl)
         response.cookies.delete('accessToken')//middlewareを経由してredirectする場合、このアプローチでないとcookieの削除に失敗する。
-        return response;
       }
-      return NextResponse.redirect(redirectUrl)
+      return response;
     }
 
-    return response;
+    return responseNext;
 };
 
 export const config = {

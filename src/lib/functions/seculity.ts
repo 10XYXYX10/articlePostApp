@@ -85,19 +85,19 @@ export const security = async (jwtEncodedStr?:string):Promise<{
 
         const jwtDecodeResult = await jwtAccessTokenDecode({jwtKey:jwtKeyFromEnv,jwtEncoded});
         if(!jwtDecodeResult.result){
-            if(jwtEncoded)cookies().delete('accessToken');
+            if(jwtEncoded && !jwtEncodedStr)cookies().delete('accessToken');
             throw new Error('Authentication error.' + jwtDecodeResult.messag);
         }
 
         const jwtDecoded = jwtDecodeResult.data;
         if(typeof jwtDecoded !== 'object'){
-            if(jwtEncoded)cookies().delete('accessToken');
+            if(jwtEncoded && !jwtEncodedStr)cookies().delete('accessToken');
             throw new Error('Authentication error.');
         }
         const id = jwtDecoded.id as number;
         const name = jwtDecoded.name as string;
         if(!id || !name){
-            if(jwtEncoded)cookies().delete('accessToken');
+            if(jwtEncoded && !jwtEncodedStr)cookies().delete('accessToken');
             throw new Error('Authentication error.');
         }
 
@@ -113,7 +113,7 @@ export const security = async (jwtEncodedStr?:string):Promise<{
                 },
             });
             if(!checkUser){
-                if(jwtEncoded)cookies().delete('accessToken');
+                if(jwtEncoded && !jwtEncodedStr)cookies().delete('accessToken');
                 throw new Error('Authentication error.'); 
             }            
         }
@@ -164,7 +164,6 @@ export const security = async (jwtEncodedStr?:string):Promise<{
 //         };
 //     }
 // }
-
 
 export const saveAccessTokenInCookies = async({
     id,
