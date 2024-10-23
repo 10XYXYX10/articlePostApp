@@ -1,4 +1,4 @@
-import { htmlToSpace } from "@/lib/functions/myValidation";
+import { dangerousCharToSpace } from "@/lib/functions/myValidation";
 import prisma from "@/lib/prisma";
 import { OptionObType, WhereObject } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
             //urlエンコードをデコード
             let parseProcess = decodeURIComponent(search);
             //htmlエンティティを無害化したものを半角スペースに変換
-            parseProcess = htmlToSpace(parseProcess).trim();
+            parseProcess = dangerousCharToSpace(parseProcess).trim();
             //半角スペースで区切って配列化
             searchList = parseProcess.split(' ')
             searchList = searchList.filter((val) => val!=''); 

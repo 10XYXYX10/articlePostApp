@@ -1,6 +1,6 @@
 import prisma from "../prisma"
 import { OptionObType, PostWithThumbnail, PostWithThumbnailList, WhereObject } from "../types"
-import { htmlToSpace } from "./myValidation"
+import { dangerousCharToSpace } from "./myValidation"
 
 export const getPostWithThumbnailList = async({
     userId,
@@ -41,7 +41,7 @@ export const getPostWithThumbnailList = async({
             //urlエンコードをデコード
             let parseProcess = decodeURIComponent(search);
             //htmlエンティティを無害化したものを半角スペースに変換
-            parseProcess = htmlToSpace(parseProcess).trim();
+            parseProcess = dangerousCharToSpace(parseProcess).trim();
             //半角スペースで区切って配列化
             searchList = parseProcess.split(' ')
             searchList = searchList.filter((val) => val!=''); 

@@ -1,6 +1,6 @@
 import PostList from "@/components/post/PostList";
 import Spinner from "@/components/Spinner";
-import { htmlToSpace } from "@/lib/functions/myValidation";
+import { dangerousCharToSpace } from "@/lib/functions/myValidation";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -22,7 +22,7 @@ const UserPage = async({
   let initialSearchVal = searchParams.search ? searchParams.search : "";
   if(initialSearchVal){
     //URLに含まれる危険文字を半角スペースに変換
-    initialSearchVal = htmlToSpace(decodeURIComponent(initialSearchVal).trim());
+    initialSearchVal = dangerousCharToSpace(decodeURIComponent(initialSearchVal).trim());
     //「%20,全角スペース,連続する半角スペース」→「半角スペース」
     initialSearchVal = initialSearchVal.replace(/\%20/g, ' ').replace(/　/g, ' ').replace(/ +/g, ' ');
   }

@@ -1,5 +1,5 @@
 'use client'
-import { htmlToSpace } from "@/lib/functions/myValidation";
+import { dangerousCharToSpace } from "@/lib/functions/myValidation";
 import useStore from "@/store";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
@@ -29,7 +29,7 @@ const SearchForm = () => {
         if(currentForm){
             //search
             let initialSearchVal = searchParams.get("search") ? searchParams.get("search")+"" : "";
-            if(initialSearchVal)initialSearchVal = htmlToSpace(initialSearchVal);
+            if(initialSearchVal)initialSearchVal = dangerousCharToSpace(initialSearchVal);
             const currentInputSearch:HTMLInputElement|null = currentForm.querySelector("input[name='search']");
             if(currentInputSearch)currentInputSearch.value = initialSearchVal.trim();   
             //sort   
@@ -63,7 +63,7 @@ const SearchForm = () => {
             const currentInputSearch:HTMLInputElement|null = currentForm.querySelector("input[name='search']");
             if(currentInputSearch){
                 let currentSearch = currentInputSearch.value;
-                currentSearch = htmlToSpace(currentSearch);
+                currentSearch = dangerousCharToSpace(currentSearch);
                 currentSearch = currentSearch.trim();
                 if(currentSearch)pushUrl += `&search=${currentSearch}`;
                 if(showModal){
