@@ -5,8 +5,8 @@ import AlertError from '../AlertError';
 import { SignUpFormState } from '@/lib/types';
 import { signUp } from '@/actions/authFunctions';
 import { inputClassVal, labelClassVal } from '@/lib/tailwindClassValue';
-import MailAuth from './MailAuth';
 import { SubmitButton } from '../SubmitButton';
+import MailAuth from './MailAuth';
 
 const initialState:SignUpFormState = {
     error:'',

@@ -1,7 +1,8 @@
-//URLに含まれる危険文字を無害化
+//■[ URLに含まれる危険文字を無害化 ]
+//・例：「a<b>c&d"e'f`g　hijk」→「a b c d e f g hijk」
 export const dangerousCharToSpace = (str:string) => {
     if (!str) return "";
-    return str.replace(/[<>&"'`;　=\%]/g, function (match) {
+    return str.replace(/[<>&"'`;　=\%?]/g, function (match) {
         const escape: { [key: string]: string } = {
             '<': ' ',
             '>': ' ',
@@ -13,12 +14,13 @@ export const dangerousCharToSpace = (str:string) => {
             '　': ' ',
             '=': ' ',
             '%': ' ',
+            '?': ' ',
         };
         return escape[match];
     });    
   }
 
-//汎用的なXSS対策
+//■[ 汎用的なXSS対策 ]
 export const validationForWord = (str:string,limit:number=20): {result:boolean, message:string} => {
     // 長さ1～20の範囲
     if (str.length===0 || str.length>limit) return {result:false, message:`1～${limit}字以内の文字列を入力して下さい`}
@@ -29,19 +31,19 @@ export const validationForWord = (str:string,limit:number=20): {result:boolean, 
     return {result:true,message:'success'}
 }
 
-//メールアドレスのバリデーション
+//■[ メールアドレスのバリデーション ]
 export const validationForEmail = (str:string): {result:boolean, message:string} => {
-    //長さ1～20の範囲
-    if(str.length===0 || str.length>40)return {result:false, message:'1～40字以内のメールアドレを入力して下さい'};
+    //長さ1～50の範囲
+    if(str.length===0 || str.length>50)return {result:false, message:'1～50字以内のメールアドレを入力して下さい'};
     //email形式
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const result = emailRegex.test(str);
     if(!result)return {result:false, message:'有効なメールアドレスの形式でありません'};
     // 成功!!
     return {result:true,message:'success'}
 }
 
-//パスワードのバリデーション
+//■[ パスワードのバリデーション ]
 export const validationForPassword = (str:string): {result:boolean, message:string} => {
     //長さ5～50の範囲
     if(str.length<5 || str.length>50)return {result:false, message:'5～50字以内の半角の英数字を入力して下さい'};
@@ -53,7 +55,7 @@ export const validationForPassword = (str:string): {result:boolean, message:stri
     return {result:true,message:'success'}
 }
 
-//authenticationPassword(6桁の数字)
+//■[ authenticationPassword(6桁の数字) ]
 export const validationForAuthenticationPassword = (str:string): {result:boolean, message:string} => {
     //6桁
     if(str.length!==6)return {result:false, message:'6桁の半角数字を入力して下さい'};

@@ -167,8 +167,8 @@ export const signIn = async (state: SignInFormState, formData: FormData) => {
         }
 
         //////////
-        //■[ 認証:電話番号,パスワード ]
-        //・電話番号
+        //■[ 認証:メールアドレス,パスワード ]
+        //・メールアドレス
         const checkUser = await prisma.user.findFirst({
             where:{
                 email,
@@ -176,16 +176,16 @@ export const signIn = async (state: SignInFormState, formData: FormData) => {
             }
         });
         if(!checkUser){
-            state.valueError.email = 'email is incorrect';
-            state.error = 'email is incorrect'
+            state.valueError.email = 'Your email or password is incorrect.';
+            state.error = 'Your email or password is incorrect.'
             return state;
         }
         //・パスワード
         try{
             const result = await bcrypt.compare(password, checkUser.hashedPassword);
             if(!result){
-                state.valueError.password = 'Password is incorrect';
-                state.error = 'Password is incorrect'
+                state.valueError.password = 'Your email or password is incorrect.';
+                state.error = 'Your email or password is incorrect.'
                 return state;
             }
         }catch(err){
@@ -286,7 +286,7 @@ export const mailAuth = async (
         //Userが存在しない
         if(!checkUser)throw new Error(`something went wrong. Please try again.`);
         userId = checkUser.id;
-        //ログインを試みたが、電話番号の認証が未完了
+        //ログインを試みたが、メールアドレスの認証が未完了
         if(typeValue=='SignIn' && !checkUser.verifiedEmail)throw new Error('That user is disabled. SMS authentication has not been completed.');
         //認証パスワードが違う
         if(checkUser.authenticationPassword!==Number(authenticationPassword))throw new Error(`Authentication password is incorrect.`);
