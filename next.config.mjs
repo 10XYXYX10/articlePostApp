@@ -5,7 +5,7 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'https',
-          hostname: 'static.lone-programmer-app.com',
+          hostname: 'articlepostapp.s3.ap-northeast-1.amazonaws.com',
           port: '',
           pathname: '/**',
         },

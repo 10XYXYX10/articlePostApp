@@ -1,16 +1,17 @@
-import { generateRandomNumber6, security } from "@/lib/functions/seculity";
+import { security } from "@/lib/functions/seculity";
+import { v4 } from 'uuid';//v4は、完全にランダムな値でuuidを生成//v1は、時間ベースでuuidを生成
 import prisma from "@/lib/prisma";
 import { Thumbnail } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { deleteThumbnails } from "./thumbnailFc";
 import { deleteFile, saveFile } from "@/lib/s3";
+import { deleteThumbnails } from "./thumbnailFc";
 
 export async function POST(request: Request) {
     try{
         //////////
         //■[ セキュリティー ]
         const {result,data,message} = await security();
-        if(!result || !data)return NextResponse.json( {message}, {status:401});
+        if(!result || !data)return NextResponse.json( {message}, {status:401});//HTTP 401 Unauthorized
         const userId = data.id;
 
         //////////
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
         const { searchParams } = new URL(request.url);
         //typeVal
         const typeVal = searchParams.get('type');
-        if(typeVal!=='jpg' && typeVal!=='png')return NextResponse.json( {message:'Bad request. Type is not correct'}, {status:400});
+        if(typeVal!=='jpg')return NextResponse.json( {message:'Bad request. Type is not correct'}, {status:400});
         //width,height,size
         const width = searchParams.get('width') ? Number(searchParams.get('width')) :null;
         const height = searchParams.get('height') ? Number(searchParams.get('height')) : null;
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
         //////////
         //■[ request ]
         const formData = await request.formData();
-        const fileFormForm = typeVal==='jpg' ? formData.get("jpg") : formData.get("png");
+        const fileFormForm = formData.get("jpg");
         if(!fileFormForm || !(fileFormForm instanceof Blob) )return NextResponse.json( {message:'Bad request.'}, {status:400});
         const file = Buffer.from(await fileFormForm?.arrayBuffer());
 
@@ -38,17 +39,8 @@ export async function POST(request: Request) {
 
         //////////
         //◆【uploadOriginFilePath】
-        const currentDate = new Date();
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const day = String(currentDate.getDate()).padStart(2, '0');
-        const hour = String(currentDate.getHours()).padStart(2, '0');
-        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-        const seconds = String(currentDate.getSeconds()).padStart(2, '0');
-        const currentTimeStr = year+month+day+hour+minutes+seconds;
-        const random = generateRandomNumber6();
-        const fileDir = `thumbnail/${currentTimeStr}_${random}`;
-        const fileName = fileDir+`.${typeVal}`;
+        const uuid = v4();
+        const fileName = `thumbnail/${uuid}_${userId}.${typeVal}`;
 
         //////////
         //◆【transaction】
@@ -70,14 +62,14 @@ export async function POST(request: Request) {
             if(!result)throw new Error(message);
         },
         {
-            maxWait: 20000, // default: 2000
-            timeout: 300000, // default: 5000, 300000=5分
+            maxWait: 10000, // default: 2000
+            timeout: 25000, // default: 25000
         }).catch(async (err)=>{
             const message = err instanceof Error ?  `Failed transaction. ${err.message}.` : `Failed transaction. Something went wrong.`;
             throw new Error(message);
         })
 
-        return NextResponse.json(newThumbnail, {status:200});
+        return NextResponse.json(newThumbnail, {status:201});
     }catch(err){
         const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;
         return NextResponse.json({ message }, {status:500});

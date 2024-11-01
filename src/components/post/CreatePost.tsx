@@ -34,7 +34,6 @@ const CreatePost = ({
     const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if(error)setError('');
-        console.log('handleSubmit')
     
         ///////////
         //◆【formDataのバリデーション】
@@ -119,7 +118,7 @@ const CreatePost = ({
         <div className="flex items-center justify-center">
             <div className="flex flex-col items-center justify-center w-full mx-1 sm:mx-3">
                 {loadingFlag&&<SpinnerModal/>}
-                <h3 className="text-2xl text-blue-500 font-bold my-5">新規プロダクト作成フォーム</h3>
+                <h3 className="text-2xl text-blue-500 font-bold my-5">記事作成フォーム</h3>
                 {error && (
                     <div className='py-3'>
                         <AlertError errMessage={error} reloadBtFlag={false}/>

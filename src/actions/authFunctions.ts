@@ -176,16 +176,18 @@ export const signIn = async (state: SignInFormState, formData: FormData) => {
             }
         });
         if(!checkUser){
-            state.valueError.email = 'Your email or password is incorrect.';
-            state.error = 'Your email or password is incorrect.'
+            state.valueError.email = 'The email or password is incorrect.';
+            state.valueError.password = 'The email or password is incorrect.';//攻撃されることを想定し、どちらが間違っていたか予測がつかないように
+            state.error = 'The email or password is incorrect.'
             return state;
         }
         //・パスワード
         try{
             const result = await bcrypt.compare(password, checkUser.hashedPassword);
             if(!result){
-                state.valueError.password = 'Your email or password is incorrect.';
-                state.error = 'Your email or password is incorrect.'
+                state.valueError.email = 'The email or password is incorrect.';//攻撃されることを想定し、どちらが間違っていたか予測がつかないように
+                state.valueError.password = 'The email or password is incorrect.';
+                state.error = 'The email or password is incorrect.'
                 return state;
             }
         }catch(err){
@@ -324,7 +326,8 @@ export const mailAuth = async (
     }
 
     //////////
-    //■[ 処理成功 ]
+    //■[ 処理成功時、リダイレクト ]
+    //・redirectはtry-catchの外で実行することが推奨されている:https://nextjs.org/docs/app/building-your-application/routing/redirecting
     redirect(`/user/${userId}`);
 }
 
@@ -344,6 +347,7 @@ export const signOut = async(state: SignOutState) => {
     }
     
     //////////
-    //■[ 処理成功 ]
+    //■[ 処理成功時、リダイレクト ]
+    //・redirectはtry-catchの外で実行することが推奨されている:https://nextjs.org/docs/app/building-your-application/routing/redirecting
     redirect('/auth');
 } 

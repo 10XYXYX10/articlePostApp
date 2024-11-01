@@ -9,7 +9,7 @@ const Header = async() => {
             <div>
                 <Link 
                     href='/'
-                    prefetch={false}//trueだと、cacheから読み込むため、新規作成した記事が即座に反映されない
+                    prefetch={true}
                     className='inline-block font-bold px-2.5 py-1 text-blue-600 hover:text-blue-400 text-md sm:text-2xl'
                 >
                     NextJS

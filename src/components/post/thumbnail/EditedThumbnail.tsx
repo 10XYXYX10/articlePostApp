@@ -1,24 +1,44 @@
-'use client'
 import { Thumbnail } from "@prisma/client";
 import axios from "axios";
+import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, Dispatch, MouseEvent, SetStateAction, memo, useEffect, useRef, useState } from "react"
 
-const imagesize = async (file:File): Promise<{ width:number, height:number, src:string }|null> => {
+const imageSize = async (file:File): Promise<
+    {width:number,height:number,src:string} | Error
+> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
         const objectUrl = URL.createObjectURL(file);
         img.onload = () => {
-            const size = {
-                width: img.naturalWidth,
-                height: img.naturalHeight,
-                src: img.src
-            };
-            resolve(size);
+            const width = img.naturalWidth;
+            const height = img.naturalHeight;
+            let message = '';
+            //widhtとheightの値に応じて、エラーハンドリング
+            if(width<200 || width>500){
+                message = '*widthが200px以上の画像をアップロードして下さい。';
+                if(width>500)message = '*widthが500px以下の画像をアップロードして下さい。';
+            }else if(height<200 || height>400){
+                message = '*heightが200px以上の画像をアップロードして下さい。';
+                if(height>500)message = '*heightが500px以下の画像をアップロードして下さい。';
+            }else if(height > width){
+                message = '*縦長の画像はアップロード出来ません。';
+            }
+            if(message){
+                URL.revokeObjectURL(objectUrl); // エラーが発生した場合オブジェクトURLを解放
+                reject(new Error(message));
+            }
+            //処理成功
+            resolve({
+                width,
+                height,
+                src:img.src,
+            });
         };
-        img.onerror = () => {
+        img.onerror = (err) => {
+            const message = err instanceof Error ? err.message : 'Somethin went wrong.';
             URL.revokeObjectURL(objectUrl); // エラーが発生した場合オブジェクトURLを解放
-            reject(null);
+            reject(new Error(message))
         };
         img.src = objectUrl;
     });
@@ -40,40 +60,40 @@ const EditedThumbnail = memo( ({
     const [loadingFlag,setLoadingFlag] = useState(false);
     const inputFileRef = useRef<HTMLInputElement>(null);
     const [selectedFile,setSelectedFile] = useState<File|null>(null);
-    const [imageData,setImageData] = useState<{width:number,height:number,src:string,type:string}|null>(null);
-
-    useEffect(()=>{
-        if(thumbnail){
-            setImageData({
+    const [imageData,setImageData] = useState<{width:number,height:number,src:string,type:string}|null>(
+        thumbnail
+            ? {
                 width:thumbnail.width,
                 height:thumbnail.height,
                 src:process.env.NEXT_PUBLIC_MEDIA_PATH+thumbnail.path,
                 type:thumbnail.type,
-            });
-            fetch(process.env.NEXT_PUBLIC_MEDIA_PATH+thumbnail.path)
-                .then(res => res.blob())
-                .then(blob => {
-                    if(thumbnail.type==='jpg'){
-                        const file = new File([blob], "image.jpg", { type: "image/jpeg" });
-                        setSelectedFile(file);                        
-                    }else{
-                        const file = new File([blob], "image.png", { type: "image/png" });
-                        setSelectedFile(file);   
-                    }
-                });
-        }else{
-            setError('サムネイル画像を選択して下さい。');
-            if(imageData){
-                if(imageData.src)URL.revokeObjectURL(imageData.src);
-                setImageData(null);
-            }
-            setSelectedFile(null);
-        }
 
+            }
+            : null
+    );
+
+    // useEffect(()=>{
+    //     if(thumbnail){
+    //         setImageData({
+    //             width:thumbnail.width,
+    //             height:thumbnail.height,
+    //             src:process.env.NEXT_PUBLIC_MEDIA_PATH+thumbnail.path,
+    //             type:thumbnail.type,
+    //         });
+    //     }else{
+    //         setError('サムネイル画像を選択して下さい。');
+    //         if(imageData)setImageData(null);
+    //     }
+    // },[thumbnail]);
+
+    //imageDataの変更を監視し、適切にクリーンアップ
+    useEffect(() => {
         return () => {
-            if(imageData && imageData.src)URL.revokeObjectURL(imageData.src);
+            if(imageData && imageData.src && !imageData.src.startsWith(process.env.NEXT_PUBLIC_MEDIA_PATH || '')) {
+                URL.revokeObjectURL(imageData.src);
+            }
         };
-    },[thumbnail]);
+    }, [imageData]);
 
     const handleFileChange = async (e:ChangeEvent<HTMLInputElement>) => {
         setError('');
@@ -83,10 +103,10 @@ const EditedThumbnail = memo( ({
 
         if(imageData && imageData.src)URL.revokeObjectURL(imageData.src);
     
-        const fileNAmeSplit = file.name.split('.');
-        const fileType = fileNAmeSplit[fileNAmeSplit.length-1]
-        if(fileType!=='jpg' && fileType!=='png'){
-            alert('*.jpg または .png のみアップロード可能です');
+        const fileNameSplit = file.name.split('.');
+        const fileType = fileNameSplit[fileNameSplit.length-1]
+        if(fileType!=='jpg'){
+            alert('*.jpg のみアップロード可能です');
             if(inputFileRef.current)inputFileRef.current.value="";
             return;
         }
@@ -99,42 +119,16 @@ const EditedThumbnail = memo( ({
         }
     
         try{
-            const result = await imagesize(file);
-            if(result===null){
-                setSelectedFile(null);
-                if(inputFileRef.current)inputFileRef.current.value="";
-                const errMessage = '*画像の解析に失敗しました。もう一度お試し下さい。';
-                setError(errMessage);
-                alert(errMessage);
-                return;
-            }
-            if(result.width<200 || result.width>500){
-                setSelectedFile(null);
-                if(inputFileRef.current)inputFileRef.current.value="";
-                let errMessage = '*widthが200px以上の画像をアップロードして下さい。';
-                if(result.width>500)errMessage = '*widthが500px以下の画像をアップロードして下さい。';
-                setError(errMessage);
-                alert(errMessage);
-                return;
-            }
-            if(result.height<200 || result.width>500){
-                setSelectedFile(null);
-                if(inputFileRef.current)inputFileRef.current.value="";
-                let errMessage = '*heightが200px以上の画像をアップロードして下さい。';
-                if(result.height>500)errMessage = '*heightが500px以下の画像をアップロードして下さい。';
-                setError(errMessage);
-                alert(errMessage);
-                return;
-            }
+            const result = await imageSize(file);
+            if(result instanceof Error)throw new Error(result.message);
             setSelectedFile(file);
             setImageData({...result,type:fileType});
         }catch(err){
-            const message = err instanceof Error ? err.message : '';
+            const message = err instanceof Error ? err.message : '画像の解析に失敗しました。もう一度、あるいは、別の画像でお試し下さい。';
             setSelectedFile(null);
             if(inputFileRef.current)inputFileRef.current.value="";
-            const errMessage = `*ファイルの読み込みに失敗しました。ファイルに問題がないかご確認ください.${message}`;
-            setError(errMessage);
-            return alert(errMessage);
+            setError(message);
+            return alert(message);
         }
     };
 
@@ -157,9 +151,7 @@ const EditedThumbnail = memo( ({
             return alert(errMessage);
         }
         const {width,height,type} = imageData;
-        let errFlag = false;
-        if(!width || !height || !type)errFlag=true;
-        if(errFlag){
+        if(!width || !height || !type){
           setSelectedFile(null);
           if(inputFileRef.current)inputFileRef.current.value="";
           const errMessage = '予期せぬエラーが発生しました。もう一度ファイルを選択してください';
@@ -172,21 +164,12 @@ const EditedThumbnail = memo( ({
             const formData = new FormData();
             //////////
             //◆【新規作成】
-            if(imageData.type==='jpg'){
-                formData.append('jpg', selectedFile);
-                const {data} = await axios.post<Thumbnail>(
-                    `${apiUrl}/user/post/thumbnail?type=jpg&width=${width}&height=${height}&size=${Math.floor(selectedFile.size)}`,
-                    formData
-                );
-                setThumbnail(data);
-            }else{
-                formData.append('png', selectedFile);
-                const {data} = await axios.post<Thumbnail>(
-                    `${apiUrl}/user/post/thumbnail?type=jpg&width=${width}&height=${height}&size=${Math.floor(selectedFile.size)}`,
-                    formData
-                );
-                setThumbnail(data);
-            }
+            formData.append('jpg', selectedFile);
+            const {data} = await axios.post<Thumbnail>(
+                `${apiUrl}/user/post/thumbnail?type=jpg&width=${width}&height=${height}&size=${Math.floor(selectedFile.size)}`,
+                formData
+            );
+            setThumbnail(data);
             if(inputFileRef.current)inputFileRef.current.value="";
             alert('success');
         } catch (err) { 
@@ -245,12 +228,17 @@ const EditedThumbnail = memo( ({
     }
 
     return(<>
-        <label className='block text-gray-700 text-md font-bold mt-6'>thumbnail(jpg/png画像)<em className="text-red-500">*</em></label>
+        <label className='block text-gray-700 text-md font-bold mt-6'>thumbnail(jpg画像)<em className="text-red-500">*</em></label>
         <div className="mb-5 bg-gray-100 shadow-md rounded px-8 pt-1 pb-8 w-full max-w-md">
             
             {imageData && imageData.src && (
                 <div className="p-3">
-                    <img src={imageData.src} width={'200px'}/>
+                    <NextImage
+                        src={imageData.src}
+                        width={200}
+                        height={200}
+                        alt={'thumbnail'}
+                    />
                 </div>
             )}
 
@@ -265,29 +253,35 @@ const EditedThumbnail = memo( ({
                             placeholder='thumbnail image'
                             ref={inputFileRef}
                             type="file"
-                            accept=".jpg, .png"
+                            accept=".jpg"
                             onChange={handleFileChange}
                         />
                         {error && <p><span className='text-red-500 font-bold text-xs italic'>{error}</span></p>}
                     </div>
                     <div className='flex items-center justify-between'>
                         <button
-                            className={`bg-green-400 hover:bg-green-600 text-sm text-white font-bold px-2 py-1 rounded focus:outline-none focus:shadow-outline ${!selectedFile||loadingFlag&&'cursor-not-allowed'}`}
+                            className={`
+                                bg-green-400 hover:bg-green-600 text-sm text-white font-bold px-2 py-1 rounded focus:outline-none focus:shadow-outline
+                                ${(!selectedFile||!imageData||loadingFlag)&&'cursor-not-allowed'}
+                            `}
                             onClick={(e)=>handleSubmit(e)}
-                            disabled={!selectedFile || loadingFlag}
+                            disabled={!selectedFile||!imageData||loadingFlag}
                         >
-                            upload
+                            {loadingFlag ? '...loading...' : 'upload'}
                         </button>
                     </div>
                 </div>
             </>):(<>
                 <div id='myFormExcutionBt' className="textAlignCenter">
                     <button
-                        className={`bg-gray-500 hover:bg-gray-600 text-sm text-white font-bold px-2 py-1 rounded focus:outline-none focus:shadow-outline ${loadingFlag&&'cursor-not-allowed'}`}
+                        className={`
+                            bg-gray-500 hover:bg-gray-600 text-sm text-white font-bold px-2 py-1 rounded focus:outline-none focus:shadow-outline 
+                            ${loadingFlag&&'cursor-not-allowed'}
+                        `}
                         onClick={(e)=>handleDelete(e)}
                         disabled={loadingFlag}
                     >
-                        delete
+                        {loadingFlag ? '...loading...' : 'delete'}
                     </button>
                 </div>
             </>)}

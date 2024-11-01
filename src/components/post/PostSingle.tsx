@@ -4,6 +4,7 @@ import Image from "next/image";
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
+import "@/app/github-markdown-light.css";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

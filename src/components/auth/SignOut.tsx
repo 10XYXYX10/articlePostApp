@@ -5,10 +5,11 @@ import { SignOutState } from "@/lib/types";
 import { IconLogout2 } from "@tabler/icons-react";
 import { useEffect } from "react";
 
+const initialState:SignOutState = {
+  error:'',
+};
+
 const SignOut = () => {
-    const initialState:SignOutState = {
-        error:'',
-    };
     //const [state, formAction] = useActionState(signIn, initialState);
     const [state, formAction] = useFormState(signOut, initialState);
 

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import SignOut from '../auth/SignOut';
 import { usePathname, useRouter } from 'next/navigation';
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL : 'http://localhost:3000/api';
 
 const UserIcon = () => {
     const router = useRouter();
@@ -19,7 +19,7 @@ const UserIcon = () => {
     useEffect(()=>{
         const fetchData = async () =>{
             try{
-                const {data} = await axios.get<AuthUser>(`${apiUrl}/auth/`);
+                const {data} = await axios.get<AuthUser>(`${apiUrl}/auth`);
                 updateUser(data)
             }catch(err){
                 resetUser();
@@ -43,7 +43,7 @@ const UserIcon = () => {
             {user.name && <SignOut/>}
             <Link
                 href={user.id ? `/user/${user.id}` : '/user'}
-                prefetch={false}//更新が即座に反映されない場合が
+                prefetch={false}//trueだと、本番環境において、middlewareでの認証が上手くいかなくなる
                 className={`rounded-full p-2 hover:opacity-75 inline-block my-1 ${pathname.startsWith('/user')?'bg-red-400':'bg-gray-400'}`}
             >
                 {user.name

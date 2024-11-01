@@ -8,15 +8,16 @@ import { inputClassVal, labelClassVal } from '@/lib/tailwindClassValue';
 import MailAuth from './MailAuth';
 import { SubmitButton } from '../SubmitButton';
 
-export default function SignIn() {
-    const initialState:SignInFormState = {
-        error:'',
-        valueError:{
-            email:'',
-            password:'',
-        },
+const initialState:SignInFormState = {
+    error:'',
+    valueError:{
         email:'',
-    };
+        password:'',
+    },
+    email:'',
+};
+
+export default function SignIn() {
     //const [state, formAction,isPending] = useActionState(signIn, initialState);
     const [state, formAction] = useFormState(signIn, initialState);
 

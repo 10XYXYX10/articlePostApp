@@ -40,9 +40,6 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // console.log(`revalidatePath：/user/${userId}`)
-        // revalidatePath(`/user/${userId}`);
-
         //////////
         //■[ return ]
         return NextResponse.json({postId:post.id},{status:200});

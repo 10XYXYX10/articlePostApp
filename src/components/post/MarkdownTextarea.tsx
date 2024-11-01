@@ -1,11 +1,12 @@
 'use client'
-import { ChangeEvent, Dispatch, KeyboardEvent, MouseEvent, SetStateAction, memo, useState } from 'react'
+import { ChangeEvent, Dispatch, KeyboardEvent, MouseEvent, SetStateAction, memo, useEffect, useState } from 'react'
 import { MarkdownForm } from '@/lib/types';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
-import remarkGfm from 'remark-gfm';
+import remarkGfm from 'remark-gfm'; //GitHub Flavored Markdown（GFM）をサポート
+import "@/app/github-markdown-light.css";
 
-const modalClass = 'absolute top-0 left-0 right-0 bottom-0 height110vh bg-slate-900 bg-opacity-50 flex flex-col justify-center items-center modal';
+const modalClass = 'absolute inset-0 h-[110%] bg-slate-900 bg-opacity-50 flex flex-col justify-center items-center modal';
 const inputClassVal = "bg-gray-100 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline";
 
 type MarkdownTextareaPropsType = {
@@ -19,7 +20,7 @@ const MarkdownTextarea = memo( ({
 }:MarkdownTextareaPropsType) => {
     const [showModal,setShowModal] = useState(false);
     const [dispScreenNum,setDispScreenNum] = useState<1|2>(1);
-
+    
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
         const inputName = e.target.name;
         let inputVal = e.target.value;  
@@ -113,7 +114,7 @@ const MarkdownTextarea = memo( ({
                                 break-all
                                 ${markdownFormData.content[1]&&'border-red-500'}
                                 ${inputClassVal}
-                                ${showModal?'height85vh w-full minWidth450':'w-full'}
+                                ${showModal?'h-[85vh] w-full min-w-[400px]':'w-full'}
                             `}
                             onChange={(e)=>handleChange(e)}
                             onClick={(e) => openModal(e) }
@@ -124,10 +125,10 @@ const MarkdownTextarea = memo( ({
                 {showModal?(
                     <div
                         onClick={(e) => e.stopPropagation()}
-                        className={`${dispScreenNum===2 ? 'w-full' : 'hidden'} md:w-1/2 md:block mx-1 p-1 bg-white rounded-sm height85vh overflow-auto`}
+                        className={`${dispScreenNum===2 ? 'w-full' : 'hidden'} md:w-1/2 md:block mx-1 p-1 bg-white rounded-sm h-[85vh] overflow-auto`}
                         id="markdown"
                     >
-                        <div className='minWidth450 mr-1'>
+                        <div className='min-w-[400px] mr-1'>
                             <ReactMarkdown
                                 className='markdown-body'
                                 remarkPlugins={[remarkGfm]}
@@ -141,20 +142,8 @@ const MarkdownTextarea = memo( ({
                 ):(<>
                     {markdownFormData.content[1] && <span className='text-red-500 text-xs italic'>{markdownFormData.content[1]}</span>}
                 </>)}
-                
             </div>
         </div>
-        <style>{`
-            .height85vh{
-                height: 85vh;
-            } 
-            .height110vh{
-                height: 110vh;
-            } 
-            .minWidth450 {
-                min-width:450px;
-            }
-        `}</style>
     </>)
 
 });

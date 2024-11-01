@@ -1,5 +1,4 @@
 import CreatePost from "@/components/post/CreatePost";
-
 const apiUrl = process.env.NEXT_PUBLIC_API_URL as string;
 
 const MainUserCreatePage = () => {
