@@ -31,6 +31,7 @@ export const getPostWithThumbnailList = async({
                 Thumbnail:true,
                 userId: true,
                 createdAt: true,
+                updatedAt: true,
             }
         };
         //・userId

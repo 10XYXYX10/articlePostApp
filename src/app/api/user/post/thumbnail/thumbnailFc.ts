@@ -11,7 +11,7 @@ export const deleteThumbnails = async():Promise<void> => {
                     none: {} 
                 },
                 createdAt: {
-                    lt: new Date(Date.now() - 1000 * 60 * 60)
+                    lt: new Date(Date.now() - 1000 * 60 * 1)
                 }
             }
         });

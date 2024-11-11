@@ -15,9 +15,11 @@ import { IconPencil, IconTrash } from "@tabler/icons-react"
 
 const EditedPostCc = ({
     post,
+    content,
     apiUrl,
 }:{
     post:PostWithThumbnail
+    content:string
     apiUrl:string
 }) => {
     const router = useRouter();
@@ -31,10 +33,7 @@ const EditedPostCc = ({
         description:[post.description,''],
     });
     const [markdownFormData,setMarkdownFormData] = useState<MarkdownForm>({
-        content:[
-            post.content ? post.content : '',
-            ''
-        ],
+        content:[content, ''],
     });
 
     const handleSubmit = async (e:MouseEvent<HTMLButtonElement>) => {

@@ -11,8 +11,12 @@ const Post = ({
 }) => {
     //image
     let imagePath='';
+    let width = 400;
+    let height = 400;
     if(post.Thumbnail){
         imagePath = process.env.NEXT_PUBLIC_MEDIA_PATH+post.Thumbnail.path;
+        width = post.Thumbnail.width;
+        height = post.Thumbnail.height;
     }else{
         imagePath = '/img/noimage.jpg';
     }
@@ -39,8 +43,8 @@ const Post = ({
                     >
                         <Image
                             src={imagePath}
-                            width={400}
-                            height={400}
+                            width={width}
+                            height={height}
                             alt={post.title}
                             quality={80}
                             className='mx-auto hover:opacity-75'

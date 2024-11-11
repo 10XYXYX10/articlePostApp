@@ -1,16 +1,16 @@
 'use client'
-import { ChangeEvent, MouseEvent, useState } from "react";
-import EditedThumbnail from "./thumbnail/EditedThumbnail"
+import { ChangeEvent, useState } from "react";
+import axios from "axios";
 import { Thumbnail } from "@prisma/client";
+import { MarkdownForm, PostForm } from "@/lib/types";
+import EditedThumbnail from "./thumbnail/EditedThumbnail"
+import MarkdownTextarea from "./MarkdownTextarea";
+import SpinnerModal from "../SpinnerModal";
+import AlertError from "../AlertError";
 import useStore from "@/store";
 import { useRouter } from "next/navigation";
-import SpinnerModal from "../SpinnerModal";
-import { MarkdownForm, PostForm } from "@/lib/types";
-import MarkdownTextarea from "./MarkdownTextarea";
-import AlertError from "../AlertError";
 import { inputClassVal } from "@/lib/tailwindClassValue";
 import { validationForWord } from "@/lib/functions/myValidation";
-import axios from "axios";
 
 const CreatePost = ({
     apiUrl,
@@ -24,15 +24,14 @@ const CreatePost = ({
     const [error,setError] = useState('');
     const [thumbnail,setThumbnail] = useState<Thumbnail|null>(null);
     const [formData,setFormData] = useState<PostForm>({
-      title:['',''],
-      description:['',''],
+      title:['',''],//[値,エラー文字]
+      description:['',''],//[値,エラー文字]
     });
     const [markdownFormData,setMarkdownFormData] = useState<MarkdownForm>({
-      content:['',''],
+      content:['',''],//[値,エラー文字]
     });
 
-    const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if(error)setError('');
     
         ///////////
@@ -58,11 +57,11 @@ const CreatePost = ({
             alertFlag = true;
         }
         //title,description,contentのvalidation結果を反映
-        setFormData({title,description});
-        setMarkdownFormData({content});
         if(alertFlag){
-          setError('入力内容に問題があります');
-          return alert('入力内容に問題があります');
+            setFormData({title,description});
+            setMarkdownFormData({content});
+            setError('入力内容に問題があります');
+            return alert('入力内容に問題があります');
         }
         //thumbnail
         if(!thumbnail){
@@ -74,7 +73,7 @@ const CreatePost = ({
         //◆【通信】
         setLoadingFlag(true);
         try {
-            await axios.post<{postId:number}>(
+            await axios.post(
                 `${apiUrl}/user/post`,
                 {
                     title:title[0],
@@ -83,7 +82,6 @@ const CreatePost = ({
                     thumbnailId:thumbnail.id,
                 }
             );
-            alert('success');
             router.push(`/user/${user.id}`);
         } catch (err) { 
             let message = 'Something went wrong. Please try again.';
@@ -124,13 +122,12 @@ const CreatePost = ({
                         <AlertError errMessage={error} reloadBtFlag={false}/>
                     </div>
                 )}
-                <form onSubmit={(e) => e.preventDefault()} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full">
+                <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full" onSubmit={(e) => e.preventDefault()}>
                     <div className="mb-4">
                         <label className='block text-gray-700 text-md font-bold'>title<em className="text-red-500">*</em></label>
                         <span className='text-xs text-gray-500'>100字以内のタイトル</span>
                         <input
                             name='title'
-                            defaultValue={formData.title[0]}
                             type='text'
                             required={true}
                             placeholder="タイトル"
@@ -145,7 +142,6 @@ const CreatePost = ({
                         <span className='text-xs text-gray-500'>300字以内のdescription</span>
                         <textarea
                             name='description'
-                            defaultValue={formData.description[0]}
                             required={true}
                             placeholder="description"
                             className={`${formData.description[1]&&'border-red-500'} ${inputClassVal}`}
@@ -168,9 +164,12 @@ const CreatePost = ({
                     />
                     <div className='flex items-center justify-between'>
                         <button
+                            onClick={handleSubmit}
+                            className={
+                                `bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline 
+                                ${loadingFlag&&'cursor-not-allowed'}
+                            `}
                             disabled={loadingFlag}
-                            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${loadingFlag&&'cursor-not-allowed'}`}
-                            onClick={(e)=>handleSubmit(e)}
                         >
                             {loadingFlag?'・・Loading・・':'create'}
                         </button>

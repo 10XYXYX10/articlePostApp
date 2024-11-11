@@ -1,31 +1,41 @@
-import { getAllPostIds } from "@/lib/functions/fetchFnc";
 import { PostWithThumbnail } from "@/lib/types";
 import Image from "next/image";
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 import "@/app/github-markdown-light.css";
-
+import { entityToDangerousChar } from "@/lib/functions/myValidation";
+//import { getPostWithThumbnail } from "@/lib/functions/fetchFnc";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-export async function generateStaticParams() {
-    const {result,message,data} = await getAllPostIds();
-    if(!result || !data)throw new Error(message);
-    return data.map(({id}) => ({
-        id: id.toString()
-    }));
-}
 
 const getOnePost = async(postId:number):Promise<PostWithThumbnail> => {
     const res = await fetch(
         `${apiUrl}/post/${postId}`,
         {
-            cache: 'force-cache'
+            //cache: 'force-cache'
+            cache: 'no-store'
         }
     );
     if (!res.ok) throw new Error('Failed to fetch data in server')// HTTPステータスコードが400以上の場合、エラーとして処理
     const postData:PostWithThumbnail = await res.json();
     return postData;
+
+    // try{
+    //     const res = await fetch(
+    //         `${apiUrl}/post/${postId}`,
+    //         {
+    //             cache: 'force-cache'
+    //         }
+    //     );
+    //     if (!res.ok) throw new Error('Failed to fetch data in server')// HTTPステータスコードが400以上の場合、エラーとして処理
+    //     const postData:PostWithThumbnail = await res.json();
+    //     return postData;
+    // }catch(err){
+    //     console.log(err instanceof Error ? err.message : `Internal Server Error.`);
+    //     const {result,message,data} = await getPostWithThumbnail(Number(postId));
+    //     if(!result || !data)throw new Error(message);
+    //     return data;
+    // }
 }
 
 const PostSingle = async({
@@ -36,6 +46,7 @@ const PostSingle = async({
     //////////
     //■[ data fetch ]
     const post = await getOnePost(postId);
+    const content = entityToDangerousChar(post.content as string);
 
     //////////
     //■[ 調整 ]
@@ -62,11 +73,10 @@ const PostSingle = async({
                     rehypePlugins={[rehypeSanitize]}
                 >
                     {/*この処理が無いと、「\n」が開業として処理されず、そのまま出力されてしまう*/}
-                    {post.content && post.content.replace(/\\n/g, '\n')} 
+                    {post.content && content.replace(/\\n/g, '\n')} 
                 </ReactMarkdown>
             </div>
         </div>
     )
 }
-
 export default PostSingle

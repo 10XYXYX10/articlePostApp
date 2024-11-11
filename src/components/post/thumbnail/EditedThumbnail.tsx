@@ -2,7 +2,7 @@ import { Thumbnail } from "@prisma/client";
 import axios from "axios";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, Dispatch, MouseEvent, SetStateAction, memo, useEffect, useRef, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, memo, useEffect, useRef, useState } from "react"
 
 const imageSize = async (file:File): Promise<
     {width:number,height:number,src:string} | Error
@@ -10,6 +10,7 @@ const imageSize = async (file:File): Promise<
     return new Promise((resolve, reject) => {
         const img = new Image();
         const objectUrl = URL.createObjectURL(file);
+        console.log(`createObjectURL:${objectUrl}`)
         img.onload = () => {
             const width = img.naturalWidth;
             const height = img.naturalHeight;
@@ -26,6 +27,7 @@ const imageSize = async (file:File): Promise<
             }
             if(message){
                 URL.revokeObjectURL(objectUrl); // エラーが発生した場合オブジェクトURLを解放
+                console.log(`revokeObjectURL:${objectUrl}`)
                 reject(new Error(message));
             }
             //処理成功
@@ -38,6 +40,7 @@ const imageSize = async (file:File): Promise<
         img.onerror = (err) => {
             const message = err instanceof Error ? err.message : 'Somethin went wrong.';
             URL.revokeObjectURL(objectUrl); // エラーが発生した場合オブジェクトURLを解放
+            console.log(`revokeObjectURL:${objectUrl}`)
             reject(new Error(message))
         };
         img.src = objectUrl;
@@ -72,47 +75,23 @@ const EditedThumbnail = memo( ({
             : null
     );
 
-    // useEffect(()=>{
-    //     if(thumbnail){
-    //         setImageData({
-    //             width:thumbnail.width,
-    //             height:thumbnail.height,
-    //             src:process.env.NEXT_PUBLIC_MEDIA_PATH+thumbnail.path,
-    //             type:thumbnail.type,
-    //         });
-    //     }else{
-    //         setError('サムネイル画像を選択して下さい。');
-    //         if(imageData)setImageData(null);
-    //     }
-    // },[thumbnail]);
-
     //imageDataの変更を監視し、適切にクリーンアップ
     useEffect(() => {
         return () => {
             if(imageData && imageData.src && !imageData.src.startsWith(process.env.NEXT_PUBLIC_MEDIA_PATH || '')) {
+                console.log(`useEffect > revokeObjectURL:${imageData.src}`)
                 URL.revokeObjectURL(imageData.src);
             }
         };
     }, [imageData]);
 
     const handleFileChange = async (e:ChangeEvent<HTMLInputElement>) => {
-        setError('');
-        if(!e.target.files)return;
-        const file = e.target.files[0];
+        if(error)setError('');
+        const file = e.target.files ? e.target.files[0] : null;
         if (!file) return;
-
-        if(imageData && imageData.src)URL.revokeObjectURL(imageData.src);
     
-        const fileNameSplit = file.name.split('.');
-        const fileType = fileNameSplit[fileNameSplit.length-1]
-        if(fileType!=='jpg'){
-            alert('*.jpg のみアップロード可能です');
-            if(inputFileRef.current)inputFileRef.current.value="";
-            return;
-        }
-      
-        const maxSizeJpg = 100 * 1024; // 100KB
-        if(file.size>maxSizeJpg){
+        const maxSize = 100 * 1024; // 100KB
+        if(file.size>maxSize){
             alert('アップロード可能サイズは100KBまでです');
             if(inputFileRef.current)inputFileRef.current.value="";
             return;
@@ -122,32 +101,32 @@ const EditedThumbnail = memo( ({
             const result = await imageSize(file);
             if(result instanceof Error)throw new Error(result.message);
             setSelectedFile(file);
-            setImageData({...result,type:fileType});
+            setImageData({...result,type:'.jpg'});
         }catch(err){
             const message = err instanceof Error ? err.message : '画像の解析に失敗しました。もう一度、あるいは、別の画像でお試し下さい。';
-            setSelectedFile(null);
             if(inputFileRef.current)inputFileRef.current.value="";
             setError(message);
-            return alert(message);
+            alert(message);
         }
     };
 
-    const handleSubmit = async (e:MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if(error)setError('');
         setLoadingFlag(true);
         //////////
         //◆【画像データのバリデーション】
         if (!selectedFile){
+            const errMessage = 'ファイルを選択して下さい';
             setLoadingFlag(false);
-            return alert("ファイルを選択して下さい");
+            setError(errMessage);
+            return alert(errMessage);
         }
         if(!imageData){
             setSelectedFile(null);
             if(inputFileRef.current)inputFileRef.current.value="";
             const errMessage = '予期せぬエラーが発生しました。もう一度ファイルを選択してください';
-            setError(errMessage);
             setLoadingFlag(false);
+            setError(errMessage);
             return alert(errMessage);
         }
         const {width,height,type} = imageData;
@@ -155,8 +134,8 @@ const EditedThumbnail = memo( ({
           setSelectedFile(null);
           if(inputFileRef.current)inputFileRef.current.value="";
           const errMessage = '予期せぬエラーが発生しました。もう一度ファイルを選択してください';
-          setError(errMessage);
           setLoadingFlag(false);
+          setError(errMessage);
           return alert(errMessage);
         }
     
@@ -166,10 +145,19 @@ const EditedThumbnail = memo( ({
             //◆【新規作成】
             formData.append('jpg', selectedFile);
             const {data} = await axios.post<Thumbnail>(
-                `${apiUrl}/user/post/thumbnail?type=jpg&width=${width}&height=${height}&size=${Math.floor(selectedFile.size)}`,
-                formData
+                `${apiUrl}/user/post/thumbnail`,
+                formData,
+                {
+                    params: {
+                        type: 'jpg',
+                        width,
+                        height,
+                        size: Math.floor(selectedFile.size)
+                    }
+                }
             );
             setThumbnail(data);
+            setImageData({...imageData, src:process.env.NEXT_PUBLIC_MEDIA_PATH+data.path})
             if(inputFileRef.current)inputFileRef.current.value="";
             alert('success');
         } catch (err) { 
@@ -177,14 +165,12 @@ const EditedThumbnail = memo( ({
             if (axios.isAxiosError(err)) {
                 if(err.response?.data.message)message = err.response.data.message;
                 //401,Authentication failed.
-                if(err.response?.status){
-                    if(err.response.status===401){
-                        setLoadingFlag(false);
-                        alert(message);
-                        resetUser();
-                        router.push('/auth');
-                        return;
-                    }
+                if(err.response?.status && err.response.status===401){
+                    setLoadingFlag(false);
+                    alert(message);
+                    resetUser();
+                    router.push('/auth');
+                    return;
                 }
             } else if (err instanceof Error) {
                 message = err.message;
@@ -195,13 +181,21 @@ const EditedThumbnail = memo( ({
         setLoadingFlag(false); 
     };
 
-    const handleDelete = async(e:MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleDelete = async() => {
         if(!thumbnail)return;
+        if(error)setError('');
+        setLoadingFlag(true);
         try {
-            setLoadingFlag(true);
-            await axios.delete(`${apiUrl}/user/post/thumbnail?thumbnailId=${thumbnail.id}`);
-            setThumbnail(null);//useEffectが発火→ URL.revokeObjectURL(imageData.src) → setImageData(null)
+            await axios.delete(
+                `${apiUrl}/user/post/thumbnail`,
+                {
+                    params: {
+                        thumbnailId: thumbnail.id
+                    }
+                }
+            );
+            setThumbnail(null);
+            setImageData(null);
             if(inputFileRef.current)inputFileRef.current.value="";
             alert('OK');
         } catch (err) { 
@@ -209,14 +203,12 @@ const EditedThumbnail = memo( ({
             if (axios.isAxiosError(err)) {
                 if(err.response?.data.message)message = err.response.data.message;
                 //401,Authentication failed.
-                if(err.response?.status){
-                    if(err.response.status===401){
-                        setLoadingFlag(false);
-                        alert(message);
-                        resetUser();
-                        router.push('/auth');
-                        return;
-                    }
+                if(err.response?.status && err.response.status===401){
+                    setLoadingFlag(false);
+                    alert(message);
+                    resetUser();
+                    router.push('/auth');
+                    return;
                 }
             } else if (err instanceof Error) {
                 message = err.message;
@@ -235,8 +227,8 @@ const EditedThumbnail = memo( ({
                 <div className="p-3">
                     <NextImage
                         src={imageData.src}
-                        width={200}
-                        height={200}
+                        width={Math.floor(imageData.width*0.7)}
+                        height={Math.floor(imageData.height*0.7)}
                         alt={'thumbnail'}
                     />
                 </div>
@@ -253,7 +245,7 @@ const EditedThumbnail = memo( ({
                             placeholder='thumbnail image'
                             ref={inputFileRef}
                             type="file"
-                            accept=".jpg"
+                            accept=".jpg"//複数指定「.jpg, .png」or「image/png, image/jpeg」or「image/*」
                             onChange={handleFileChange}
                         />
                         {error && <p><span className='text-red-500 font-bold text-xs italic'>{error}</span></p>}
@@ -264,7 +256,7 @@ const EditedThumbnail = memo( ({
                                 bg-green-400 hover:bg-green-600 text-sm text-white font-bold px-2 py-1 rounded focus:outline-none focus:shadow-outline
                                 ${(!selectedFile||!imageData||loadingFlag)&&'cursor-not-allowed'}
                             `}
-                            onClick={(e)=>handleSubmit(e)}
+                            onClick={handleSubmit}
                             disabled={!selectedFile||!imageData||loadingFlag}
                         >
                             {loadingFlag ? '...loading...' : 'upload'}
@@ -272,13 +264,14 @@ const EditedThumbnail = memo( ({
                     </div>
                 </div>
             </>):(<>
+                {error && <p className="mb-2"><span className='text-red-500 font-bold text-xs italic'>{error}</span></p>}
                 <div id='myFormExcutionBt' className="textAlignCenter">
                     <button
                         className={`
                             bg-gray-500 hover:bg-gray-600 text-sm text-white font-bold px-2 py-1 rounded focus:outline-none focus:shadow-outline 
                             ${loadingFlag&&'cursor-not-allowed'}
                         `}
-                        onClick={(e)=>handleDelete(e)}
+                        onClick={handleDelete}
                         disabled={loadingFlag}
                     >
                         {loadingFlag ? '...loading...' : 'delete'}

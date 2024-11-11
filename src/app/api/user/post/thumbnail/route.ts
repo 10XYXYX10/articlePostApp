@@ -89,7 +89,7 @@ export async function DELETE(request: Request) {
         const { searchParams } = new URL(request.url);
         //thumbnailId
         const thumbnailId = searchParams.get('thumbnailId') ? Number(searchParams.get('thumbnailId')) :null;
-        if(!thumbnailId)return NextResponse.json( {message:'Bad request.'}, {status:400});
+        if(!thumbnailId)return NextResponse.json( {message:'Bad request. ThumbnailId is not exist.'}, {status:400});
 
 
         //////////

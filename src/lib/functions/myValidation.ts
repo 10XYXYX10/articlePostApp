@@ -2,11 +2,12 @@
 //・例：「a<b>c&d"e'f`g　hijk」→「a b c d e f g hijk」
 export const dangerousCharToSpace = (str:string) => {
     if (!str) return "";
-    return str.replace(/[<>&"'`;　=\%?]/g, function (match) {
+    return str.replace(/[<>&|"'`;　=\%?!\\]/g, function (match) {
         const escape: { [key: string]: string } = {
             '<': ' ',
             '>': ' ',
             '&': ' ',
+            '|': ' ',
             '"': ' ',
             "'": ' ',
             '`': ' ',
@@ -15,18 +16,81 @@ export const dangerousCharToSpace = (str:string) => {
             '=': ' ',
             '%': ' ',
             '?': ' ',
+            '!': ' ',
+            '\\': ' ',
         };
         return escape[match];
     });    
-  }
+}
+export const dangerousCharToEntity = (str: string) => {
+    if (!str) return "";
+    return str.replace(
+        /[<>/&|"'`;=%?!#@*\\\+\-]/g, 
+        function (match) {
+            const escape: { [key: string]: string } = {
+                '<': '&lt;',
+                '>': '&gt;',
+                '/': '&#x2f;',
+                '&': '&amp;',
+                '|': '&#x7c;',
+                '"': '&quot;',
+                "'": '&#x27;',
+                '`': '&#x60;',
+                ';': '&#059;',
+                '=': '&#x3d;',
+                '%': '&#x25;',
+                '?': '&#x3f;',
+                '!': '&#x21;',
+                '#': '&#x23;',
+                '@': '&#x40;',
+                '*': '&#x2a;',
+                '\\': '&#092;',
+                '+': '&#x2b;',
+                '-': '&#x2d;',
+            };
+            return escape[match];
+        }
+    );  
+}
+export const entityToDangerousChar = (str: string) => {
+    if (!str) return "";
+    return str.replace(
+        /(&lt;|&gt;|&#x2f;|&amp;|&#x7c;|&quot;|&#x27;|&#x60;|&#059;|&#x3d;|&#x25;|&#x3f;|&#x21;|&#x23;|&#x40;|&#x2a;|&#092;|&#x2b;|&#x2d;)/g,
+        function (match) {
+            const unescape: { [key: string]: string } = {
+                '&lt;': '<',
+                '&gt;': '>',
+                '&#x2f;': '/',
+                '&amp;': '&',
+                '&#x7c;': '|',
+                '&quot;': '"',
+                '&#x27;': "'",
+                '&#x60;': '`',
+                '&#059;': ';',
+                '&#x3d;': '=',
+                '&#x25;': '%',
+                '&#x3f;': '?',
+                '&#x21;': '!',
+                '&#x23;': '#',
+                '&#x40;': '@',
+                '&#x2a;': '*',
+                '&#092;': '\\',
+                '&#x2b;': '+',
+                '&#x2d;': '-',
+            };
+            return unescape[match];
+        }
+    );
+}
+
 
 //■[ 汎用的なXSS対策 ]
 export const validationForWord = (str:string,limit:number=20): {result:boolean, message:string} => {
     // 長さ1～20の範囲
     if (str.length===0 || str.length>limit) return {result:false, message:`1～${limit}字以内の文字列を入力して下さい`}
 	//htmlエンティティ
-	const pattern = /[<>%"`';?&=]/;
-	if(pattern.test(str))return{result:false, message:'「<>%"`\';?&=」これらの文字列は使用不可です'};
+	const pattern = /[<>%"`';?&|=]/;
+	if(pattern.test(str))return{result:false, message:'「<>%"`\';?&|=」これらの文字列は使用不可です'};
     // 成功!!
     return {result:true,message:'success'}
 }

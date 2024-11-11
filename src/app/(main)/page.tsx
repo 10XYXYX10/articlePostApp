@@ -6,7 +6,7 @@ import { Suspense } from "react";
 const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 10;
 
 const MainPage = ({
-  searchParams,
+  searchParams, //Next.js V13以降のAppRouterでは、searchParamsに渡されるクエリパラメータは、デコード済みの状態で提供される＝decodeURIComponentは不要
 }:{
   searchParams: { [key: string]: string | undefined }
 }) => {
@@ -16,7 +16,7 @@ const MainPage = ({
   let initialSearch = searchParams.search ? searchParams.search : "";
   if(initialSearch){
     //URLに含まれる危険文字を半角スペースに変換
-    initialSearch = dangerousCharToSpace(decodeURIComponent(initialSearch).trim());
+    initialSearch = dangerousCharToSpace(initialSearch.trim());
     //「%20,全角スペース,連続する半角スペース」→「半角スペース」
     initialSearch = initialSearch.replace(/\%20/g, ' ').replace(/　/g, ' ').replace(/ +/g, ' ');
   }

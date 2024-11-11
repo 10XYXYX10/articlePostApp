@@ -1,7 +1,7 @@
 import { security } from "@/lib/functions/seculity";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { validationForWord } from "@/lib/functions/myValidation";
+import { dangerousCharToEntity, validationForWord } from "@/lib/functions/myValidation";
 import { deleteFile } from "@/lib/s3";
 import { revalidatePath } from "next/cache";
 
@@ -27,6 +27,9 @@ export async function POST(request: NextRequest) {
         //description
         validationResult = validationForWord(description,400);
         if( !validationResult.result)return NextResponse.json( {message:`Bad request.${validationResult.message}`}, {status:400});
+        //content
+        if(content.length>4000)return NextResponse.json( {message:`Bad request. The content is limited to 4000 characters.`}, {status:400});
+        const contentRe = dangerousCharToEntity(content);
 
         //////////
         //■[ 同期：Article.process=runningで新規作成 ]
@@ -34,15 +37,15 @@ export async function POST(request: NextRequest) {
             data:{
                 title,
                 description,
-                content,
-                userId: userId,
+                content:contentRe,
+                userId,
                 thumbnailId:Number(thumbnailId),
             }
         });
 
         //////////
         //■[ return ]
-        return NextResponse.json({postId:post.id},{status:200});
+        return NextResponse.json({postId:post.id},{status:201});
 
     }catch(err){
         const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;

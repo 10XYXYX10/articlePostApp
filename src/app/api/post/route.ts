@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
                 Thumbnail:true,
                 userId: true,
                 createdAt: true,
+                updatedAt: true,
             }
         };
         //・userId

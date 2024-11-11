@@ -58,6 +58,7 @@ export type PostWithThumbnail =  {
     Thumbnail: Thumbnail | null;
     userId: number;
     createdAt: Date;
+    updatedAt: Date;
 }
 export type PostWithThumbnailList =  PostWithThumbnail[]
 export type WhereObject = {
@@ -85,6 +86,7 @@ export type OptionObType = {
         Thumbnail:true,
         userId: true,
         createdAt: true,
+        updatedAt?:true,
     }
     where?:WhereObject
     orderBy?: { createdAt: 'desc'|'asc' }
