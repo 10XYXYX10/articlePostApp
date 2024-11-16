@@ -1,7 +1,7 @@
-import EditedPostSc from "@/components/post/EditedPostSc";
-import Spinner from "@/components/Spinner";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import Spinner from "@/components/Spinner";
+import EditedPostSc from "@/components/post/EditedPostSc";
 
 const MainUserEditIdPage = ({params}:{params:{postId:number}}) => {
     const postId = Number(params.postId);
@@ -18,5 +18,4 @@ const MainUserEditIdPage = ({params}:{params:{postId:number}}) => {
         </div>
     )
 }
-
 export default MainUserEditIdPage

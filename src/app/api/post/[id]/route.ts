@@ -24,7 +24,7 @@ export async function GET(request: Request,{params}:{params:{id:string}}) {
                 createdAt: true,
             }
         });
-        if(!post)return NextResponse.json( {message:'Not Found.'}, {status:400});
+        if(!post)return NextResponse.json( {message:'Not Found.'}, {status:404});
         return NextResponse.json(post,{status:200});
         
     }catch(err){

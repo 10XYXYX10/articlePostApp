@@ -61,6 +61,7 @@ export type PostWithThumbnail =  {
     updatedAt: Date;
 }
 export type PostWithThumbnailList =  PostWithThumbnail[]
+
 export type WhereObject = {
     userId?:number
     AND?: {
@@ -77,6 +78,7 @@ export type WhereObject = {
         }[]
     }[];
 };
+
 export type OptionObType = {
     select: {
         id: true,

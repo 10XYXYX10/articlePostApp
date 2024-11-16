@@ -3,10 +3,8 @@ import Spinner from "@/components/Spinner";
 import { dangerousCharToSpace } from "@/lib/functions/myValidation";
 import { Suspense } from "react";
 
-const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 10;
-
 const MainPage = ({
-  searchParams, //Next.js V13以降のAppRouterでは、searchParamsに渡されるクエリパラメータは、デコード済みの状態で提供される＝decodeURIComponentは不要
+  searchParams, //searchParamsに渡されるクエリパラメータは、デコード済みの状態で提供される＝decodeURIComponentは不要
 }:{
   searchParams: { [key: string]: string | undefined }
 }) => {
@@ -24,7 +22,7 @@ const MainPage = ({
   const initialSort = searchParams.sort;
   const sort:'desc'|'asc' = initialSort!='desc'&&initialSort!='asc' ? 'desc' : initialSort;
   //・page
-  const initialPage = searchParams.page ? Number(searchParams.page) : 1;
+  const page = searchParams.page && !isNaN(Number(searchParams.page))  ? Number(searchParams.page) : 1;
   
   return (
     <div>
@@ -33,8 +31,7 @@ const MainPage = ({
           userId={null}
           search={initialSearch}
           sort={sort}
-          page={initialPage}
-          fetchCount={fetchCount}
+          page={page}
           path={`/post/`}
         />
       </Suspense>

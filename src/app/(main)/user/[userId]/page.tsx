@@ -1,10 +1,9 @@
 import PostList from "@/components/post/PostList";
+import { Suspense } from "react";
 import Spinner from "@/components/Spinner";
-import { dangerousCharToSpace } from "@/lib/functions/myValidation";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 10;
+import { dangerousCharToSpace } from "@/lib/functions/myValidation";
 
 const UserPage = async({
   params,
@@ -22,16 +21,15 @@ const UserPage = async({
   let initialSearchVal = searchParams.search ? searchParams.search : "";
   if(initialSearchVal){
     //URLに含まれる危険文字を半角スペースに変換
-    initialSearchVal = dangerousCharToSpace(decodeURIComponent(initialSearchVal).trim());
+    initialSearchVal = dangerousCharToSpace(initialSearchVal).trim();
     //「%20,全角スペース,連続する半角スペース」→「半角スペース」
-    initialSearchVal = initialSearchVal.replace(/\%20/g, ' ').replace(/　/g, ' ').replace(/ +/g, ' ');
+    initialSearchVal = initialSearchVal.replace(/\%20/g, ' ').replace(/ +/g, ' ');
   }
   //■[ sort ]
   const initialSortVal = searchParams.sort;
   const sort:'desc'|'asc' = initialSortVal!='desc'&&initialSortVal!='asc' ? 'desc' : initialSortVal;
   //■[ page ]
-  const initialPageVal = searchParams.page ? Number(searchParams.page) : 1;
-
+  const page = searchParams.page && !isNaN(Number(searchParams.page))  ? Number(searchParams.page) : 1;
 
   return (
     <div className="p-5">
@@ -47,8 +45,7 @@ const UserPage = async({
           userId={userId}
           search={initialSearchVal}
           sort={sort}
-          page={initialPageVal}
-          fetchCount={fetchCount}
+          page={page}
           path={`/user/${userId}/edit/`}
         />
       </Suspense>

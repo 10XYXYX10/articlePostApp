@@ -2,25 +2,26 @@ import { getPostWithThumbnailList } from "@/lib/functions/fetchFnc"
 import { IconArrowBigLeftLine, IconArrowBigRightLine } from "@tabler/icons-react";
 import Link from "next/link";
 import Post from "./Post";
+const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 10;
+const appUrl = process.env.NEXT_PUBLIC_APP_URL as string;
 
 const PostList = async({
     userId,
     search,
     sort,
     page,
-    fetchCount,
     path,
 }:{
     userId:number|null
     search:string
     sort:'desc'|'asc'
     page:number
-    fetchCount:number
     path:string
 }) => {
   //////////
   //■[ データ取得 ]
-  const {result,message,data} = await getPostWithThumbnailList({userId,search,sort,page,fetchCount,});
+  const parameter = {userId,search,sort,page};
+  const {result,message,data} = await getPostWithThumbnailList(parameter);
   if(!result || !data)throw new Error(message);
 
   //////////
@@ -29,8 +30,8 @@ const PostList = async({
   queryParameter+=`&sort=${sort}&`;
   if(search)queryParameter+=`&search=${search}`;
   const url = userId
-    ? new URL(`${process.env.NEXT_PUBLIC_APP_URL}/user/${userId}?${queryParameter}`)
-    : new URL(`${process.env.NEXT_PUBLIC_APP_URL}?${queryParameter}`)
+    ? new URL(`${appUrl}/user/${userId}?${queryParameter}`)
+    : new URL(`${appUrl}?${queryParameter}`)
   ;
   const params = new URLSearchParams(url.search);
   let nextPageUrl='';
@@ -38,8 +39,8 @@ const PostList = async({
   if(page>1){
       //□offset更新：-1
       params.set('page', String(page-1));
-      url.search = params.toString();
-      prevPageUrl = url.toString();
+      url.search = params.toString(); //「url.search = ?page=2&sort='desc」「params.toString() = ?page=1&sort='desc」
+      prevPageUrl = url.toString();//「url.toString() = http://localhost:3000/user/userId?page=1&sort='desc」
   }
   if(data.length>fetchCount){
       //□offset更新：+1
@@ -55,7 +56,7 @@ const PostList = async({
     </div>
   </div>
 
-    <div className="flex justify-between items-center mt-10">
+    <div className="flex justify-between items-center mt-5 mb-10">
           <span>
             {prevPageUrl && (
                 <Link href={prevPageUrl} className="hover:opacity-65">

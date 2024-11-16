@@ -10,15 +10,13 @@ const Post = ({
     path:string
 }) => {
     //image
-    let imagePath='';
-    let width = 400;
-    let height = 400;
+    let imagePath='/img/noimage.jpg';
+    let width = 250;
+    let height = 165;
     if(post.Thumbnail){
         imagePath = process.env.NEXT_PUBLIC_MEDIA_PATH+post.Thumbnail.path;
         width = post.Thumbnail.width;
         height = post.Thumbnail.height;
-    }else{
-        imagePath = '/img/noimage.jpg';
     }
 
     return (<div className={`mb-3 sm:w-1/2 p-1`}>
@@ -26,12 +24,12 @@ const Post = ({
             <Link
                 className="shadow-md hover:shadow-none"
                 href={path+post.id}
-                prefetch={true}
+                prefetch={true}//デフォルトでトゥルー。省略可。
             >
                 <h2 
-                    className='text-center text-lg bg-slate-200 hover:bg-slate-300'
+                    className='text-center text-lg bg-slate-200 hover:bg-slate-300 px-1 truncate'
                 >
-                    {post.title.length>30 ? post.title.substring(0, 30)+'…' : post.title}
+                    {post.title}
                 </h2>
             </Link>
             <div className='py-2.5 px-1 h-' style={{padding:'10px 5px'}}>

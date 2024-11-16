@@ -76,6 +76,9 @@ export async function PUT(request: NextRequest) {
         //description
         validationResult = validationForWord(description,400);
         if( !validationResult.result)return NextResponse.json( {message:`Bad request.${validationResult.message}`}, {status:400});
+        //content
+        if(content.length>4000)return NextResponse.json( {message:`Bad request. The content is limited to 4000 characters.`}, {status:400});
+        const contentRe = dangerousCharToEntity(content);
                 
         //////////
         //■[ 更新対象postの存在＆userIdの確認 ]
@@ -84,13 +87,13 @@ export async function PUT(request: NextRequest) {
         if(targetPost.userId != userId)return NextResponse.json( {message:'Authentication failed.'}, {status:401});
 
         //////////
-        //■[ 新規作成 ]
+        //■[ 更新 ]
         await prisma.post.update({
             where:{id:targetPost.id},
             data:{
                 title,
                 description,
-                content,
+                content:contentRe,
                 thumbnailId,
             }
         });
@@ -98,7 +101,7 @@ export async function PUT(request: NextRequest) {
 
         //////////
         //■[ return ]
-        return NextResponse.json({message:'succes!!'},{status:200});
+        return NextResponse.json({message:'succes!!'},{status:200});//204,,,response返してるから今回は200番で
 
     }catch(err){
         const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;
@@ -109,17 +112,18 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
     try{
         //////////
+        //■[ セキュリティー ]
+        const {result,data,message} = await security();
+        if(!result || !data)return NextResponse.json( {message}, {status:401});
+        const userId = data.id;
+
+        //////////
         //■[ クエリパラメータ ]
         const { searchParams } = new URL(request.url);
         //postId
         const postId = searchParams.get('postId') ? Number(searchParams.get('postId')) : null;
         if(!postId)return NextResponse.json( {message:`Bad request.`}, {status:400});
 
-        //////////
-        //■[ セキュリティー ]
-        const {result,data,message} = await security();
-        if(!result || !data)return NextResponse.json( {message}, {status:401});
-        const userId = data.id;
     
         //////////
         //■[ 更新対象postの存在＆userIdの確認 ]
@@ -145,8 +149,7 @@ export async function DELETE(request: NextRequest) {
                 //Thumbnailを削除                
                 await prismaT.thumbnail.delete({where:{id:targetPost.thumbnailId}});
                 //S3オブジェクトを削除
-                const targetFilePath = targetPost.Thumbnail.path;
-                const {result,message} = await deleteFile(targetFilePath)
+                const {result,message} = await deleteFile(targetPost.Thumbnail.path)
                 if(!result)throw new Error(`Failed to delete the targetS3File. ${message}`);
             }
         },

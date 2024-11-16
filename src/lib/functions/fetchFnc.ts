@@ -1,19 +1,19 @@
 import prisma from "../prisma"
 import { OptionObType, PostWithThumbnail, PostWithThumbnailList, WhereObject } from "../types"
-import { dangerousCharToSpace } from "./myValidation"
+import { cache } from 'react'//https://ja.next-community-docs.dev/docs/app/building-your-application/caching
+const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 10;
 
-export const getPostWithThumbnailList = async({
+//cache：Request Memoization！重複排除！ ← 「generateMetaData内でも、2重にデータ取得!」の様な実装はしてないので、省略可
+export const getPostWithThumbnailList = cache(async({
     userId,
     search,
     sort,
     page,
-    fetchCount,
 }:{
     userId:number|null
     search:string
     sort:'desc'|'asc'
     page:number
-    fetchCount:number
 }):Promise<{
     result:boolean
     message:string
@@ -37,14 +37,9 @@ export const getPostWithThumbnailList = async({
         //・userId
         let whereOb:WhereObject = userId ? {userId:Number(userId)} : {}
         //・search
-        let searchList:string[]|null;
         if(search){
-            //urlエンコードをデコード
-            let parseProcess = decodeURIComponent(search);
-            //htmlエンティティを無害化したものを半角スペースに変換
-            parseProcess = dangerousCharToSpace(parseProcess).trim();
             //半角スペースで区切って配列化
-            searchList = parseProcess.split(' ')
+            let searchList:string[] = search.split(' ');//dangerousCharToSpace(search).trim();
             searchList = searchList.filter((val) => val!=''); 
             //whereOb
             whereOb = {
@@ -62,22 +57,19 @@ export const getPostWithThumbnailList = async({
         optionOb = {
             ...optionOb,
             where:whereOb,
-            orderBy: { createdAt:sort }
-        }
-        optionOb = {
-            ...optionOb,
+            orderBy: { createdAt:sort },
             skip: Number(fetchCount*(page-1)),
             take: fetchCount+1,
         }
 
         //////////
         //■[ データ取得 ]
-        const productList = await prisma.post.findMany(optionOb);
+        const postList = await prisma.post.findMany(optionOb);
 
         return {
             result:true,
             message:'success',
-            data:productList
+            data:postList
         }
     }catch(err){
         const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;
@@ -87,9 +79,10 @@ export const getPostWithThumbnailList = async({
             data:null,
         }
     }
-}
+});
 
-export const getPostWithThumbnail = async(postId:number):Promise<{
+//cache：Request Memoization！重複排除！
+export const getPostWithThumbnail = cache(async(postId:number):Promise<{
     result:boolean
     message:string
     data:PostWithThumbnail|null
@@ -112,13 +105,18 @@ export const getPostWithThumbnail = async(postId:number):Promise<{
     }catch(err){
         const message = err instanceof Error ?  `${err.message}.` : `Internal Server Error.`;
         return {
-            result:true,
+            result:false,
             message,
             data:null,
         }
     }
-}
+});
 
+// ■[ 「Can't reach database server at `aws・・・」のエラーについて ]
+// ・supabaseの無料利用枠を利用していて、リクエストが集中すると、このエラーが発生する。
+// 	これは、記事数が多くなってきた状態で、「npm run build」を実行すると度々生じる。
+// ・ビルド時にSSGを適用する記事数に上限を設ければ回避可能
+// ・所詮は無料利用枠と割り切るべき
 export const getAllPostIds = async():Promise<{
     result:boolean
     message:string
@@ -128,9 +126,9 @@ export const getAllPostIds = async():Promise<{
         const postIdList = await prisma.post.findMany({
             select:{
                 id:true
-            }
+            },
+            take:5
         });
-        if(!postIdList)throw new Error('404,postId is not exist');
         return {
             result:true,
             message:'success',

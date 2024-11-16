@@ -8,6 +8,8 @@ const EditedPostSc = async({
 }:{
     postId:number
 }) => {
+    //await new Promise( (resolve) => setTimeout(resolve,5000) )
+
     //////////
     //■[ データ取得 ]
     const {result,message,data} = await getPostWithThumbnail(postId);
