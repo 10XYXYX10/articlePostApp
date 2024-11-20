@@ -1,11 +1,40 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 全ての API routes にマッチ
+  async headers() {
+    return [
+      {
+        // 対象APIのパスパターン
+        // 今回は src/app/api/ 配下にAPIを作っているので下記のようにする
+        source: "/api/:path*",
+        headers: [
+          {
+            // CORSを許可するオリジン
+            key: "Access-Control-Allow-Origin",
+            // すべてのオリジンを許可するなら * (アスタリスク)
+            // ただセキュリティ的にはよろしくないので注意
+            value: "https://main.d29t5nmvehh54.amplifyapp.com/",
+          },
+          {
+            // 許可するメソッド
+            key: "Access-Control-Allow-Methods",
+            value: "GET,OPTIONS,POST,PUT,DELETE",
+          },
+          {
+            // 許可するリクエストヘッダ
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type",
+          },
+        ],
+      },
+    ];
+  },
     images: {
       //絶対pathで表示できる
       remotePatterns: [
         {
           protocol: 'https',
-          hostname: 'articlepostapp.s3.ap-northeast-1.amazonaws.com',
+          hostname: 'static.lone-programmer-app.com',
           port: '',
           pathname: '/**',
         },
@@ -15,6 +44,7 @@ const nextConfig = {
       fetches: {
         fullUrl: true,
       },
-    },};
+    }
+};
 
 export default nextConfig;

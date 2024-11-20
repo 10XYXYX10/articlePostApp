@@ -9,7 +9,6 @@ const Header = async() => {
             <div>
                 <Link 
                     href='/'
-                    prefetch={true}
                     className='inline-block font-bold px-2.5 py-1 text-blue-600 hover:text-blue-400 text-md sm:text-2xl'
                 >
                     NextJS

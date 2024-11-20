@@ -20,50 +20,51 @@ const SearchForm = () => {
         const currentForm = formRef.current;
         if(currentForm){
             //search
-            let currentSearchVal = search ?? "";
-            if(currentSearchVal){
-                currentSearchVal = dangerousCharToSpace(currentSearchVal);
-                currentSearchVal = currentSearchVal.replace(/\%20/g, ' ').replace(/　/g, ' ').replace(/ +/g, ' ');
-                currentSearchVal = currentSearchVal.trim();
+            let currentSearch = search ?? "";
+            if(currentSearch){
+                currentSearch = dangerousCharToSpace(currentSearch);
+                currentSearch = currentSearch.replace(/\%20/g, ' ').replace(/ +/g, ' ');
+                currentSearch = currentSearch.trim();
             }
             const currentInputSearch:HTMLInputElement|null = currentForm.querySelector("input[name='search']");
-            if(currentInputSearch)currentInputSearch.value = currentSearchVal.trim();   
+            if(currentInputSearch)currentInputSearch.value = currentSearch;  
             //sort   
-            let initialSortVal = sort ?? "desc";
-            if(initialSortVal!='desc' && initialSortVal!='asc')initialSortVal = 'desc';
+            let currentSort = sort ?? "desc";
+            if(currentSort!='desc' && currentSort!='asc')currentSort = 'desc';
             const currentSelect:HTMLSelectElement|null = currentForm.querySelector("select[name='sort']");
-            if(currentSelect)currentSelect.value = initialSortVal; 
+            if(currentSelect)currentSelect.value = currentSort; 
         }
 
-    },[search,sort]);
+    },[search,sort]);//この依存配列のセットがないと、「検索＆並び替え実行～トップページのリンクをクリック」した際などに、検索文字等が初期状態に戻らない。
 
     const handleSubmit = (e:FormEvent<HTMLFormElement>| ChangeEvent<HTMLSelectElement>) => {
         e.preventDefault();
         //////////
         //◆【遷移先URL】
-        let pushUrl = '/';
-        if(pathname.startsWith('/user') && user.id)pushUrl = `/user/${user.id}`;
         const currentForm = formRef.current;
         if(currentForm){
+            let pushUrl = '/';
+            if(pathname.startsWith('/user') && user.id)pushUrl = `/user/${user.id}`;
             //sort
-            const currentSelect:HTMLSelectElement|null = currentForm.querySelector("select[name='sort']");
-            if(currentSelect){
-                let currentSort = currentSelect.value;
-                if(currentSort!='desc' && currentSort!='asc')currentSort = 'desc';
-                pushUrl += `?sort=${currentSort}`;
-            } 
+            if(!pathname.startsWith('/post')){
+                const currentSelect:HTMLSelectElement|null = currentForm.querySelector("select[name='sort']");
+                if(currentSelect){
+                    let currentSort = currentSelect.value;
+                    if(currentSort!='desc' && currentSort!='asc')currentSort = 'desc';
+                    pushUrl += `?sort=${currentSort}`;
+                }  
+            }else{
+                pushUrl += '?sort=desc';
+            }
             //search
             const currentInputSearch:HTMLInputElement|null = currentForm.querySelector("input[name='search']");
             if(currentInputSearch){
                 let currentSearch = currentInputSearch.value;
                 currentSearch = dangerousCharToSpace(currentSearch);
-                currentSearch = currentSearch.replace(/\%20/g, ' ').replace(/　/g, ' ').replace(/ +/g, ' ');
+                currentSearch = currentSearch.replace(/\%20/g, ' ').replace(/ +/g, ' ');
                 currentSearch = currentSearch.trim();
                 if(currentSearch)pushUrl += `&search=${currentSearch}`;
-                if(showModal){
-                    setShowModal(false);
-                    currentInputSearch.style.width='';
-                }
+                if(showModal)setShowModal(false);
             }
             //遷移
             router.push(pushUrl)
@@ -80,20 +81,16 @@ const SearchForm = () => {
                 //■[ 検索候補(ブラウザのオートコンプリート)が元の位置に表示される問題 ]
                 //・原因：モーダル表示時にinput要素の位置が変更されても、ブラウザのオートコンプリートの表示位置が更新されない。
                 //・解決策：現在のフォーカスを無効にしたのち、再設定。
-                setTimeout(() => {
-                    if (inputSearch){
-                        inputSearch.blur(); // 現在のフォーカスを外す
-                        inputSearch.focus(); // 再度フォーカスを設定
-                    }
-                }, 1);
+                setTimeout(() => {// わずかな遅延を追加。これが無いと、SPなどの環境によっては、検索候補が元の位置に表示され続けてしまう。
+                    inputSearch.blur();
+                    inputSearch.focus();
+                }, 50);
             }
         }
     }
 
     const closeModal = () => {
-        if(!showModal)return;
-        const currentForm =formRef.current;
-        if(currentForm)setShowModal(false);
+        if(showModal)setShowModal(false);
     }
 
     return(<>
@@ -122,18 +119,20 @@ const SearchForm = () => {
                             className="bg-blue-500 text-white p-1 rounded-md cursor-pointer hover:bg-blue-600 mr-1"
                         />
                     </div>
-                    <select
-                        name='sort'
-                        className={`
-                            mx-1 border border-black-300 p-1 rounded-md sm:inline
-                            ${showModal ? 'mt-1.5 ml-0 inline' : 'hidden'}
-                        `}
-                        onChange={handleSubmit}
-                    >
-                        {[['desc','new'],['asc','old']].map((val)=>(
-                            <option key={val[0]} value={val[0]}>{val[1]}</option>
-                        ))}
-                    </select>
+                    {!pathname.startsWith('/post') && (
+                        <select
+                            name='sort'
+                            className={`
+                                mx-1 border border-black-300 p-1 rounded-md sm:inline
+                                ${showModal ? 'mt-1.5 ml-0 inline' : 'hidden'}
+                            `}
+                            onChange={handleSubmit}
+                        >
+                            {[['desc','new'],['asc','old']].map((val)=>(
+                                <option key={val[0]} value={val[0]}>{val[1]}</option>
+                            ))}
+                        </select>                        
+                    )}
                 </div>
             </form>
         </div>

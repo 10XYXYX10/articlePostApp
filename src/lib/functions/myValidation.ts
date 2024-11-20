@@ -1,85 +1,69 @@
-//■[ URLに含まれる危険文字を無害化 ]
+//■[ 危険文字を半角スペースに変換し無害化 ]
 //・例：「a<b>c&d"e'f`g　hijk」→「a b c d e f g hijk」
 export const dangerousCharToSpace = (str:string) => {
     if (!str) return "";
-    return str.replace(/[<>&|"'`;　=\%?!\\]/g, function (match) {
-        const escape: { [key: string]: string } = {
-            '<': ' ',
-            '>': ' ',
-            '&': ' ',
-            '|': ' ',
-            '"': ' ',
-            "'": ' ',
-            '`': ' ',
-            ';': ' ',
-            '　': ' ',
-            '=': ' ',
-            '%': ' ',
-            '?': ' ',
-            '!': ' ',
-            '\\': ' ',
-        };
-        return escape[match];
-    });    
+    return str.replace(
+        /[<>&|"'`;　=%?!\\]/g,
+        () => ' '
+    );  
 }
+
+//■[ 危険文字をエンティティ化 ]
+const escapeToEntity: { [key: string]: string } = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '/': '&#x2f;',
+    '&': '&amp;',
+    '|': '&#x7c;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '`': '&#x60;',
+    ';': '&#059;',
+    '=': '&#x3d;',
+    '%': '&#x25;',
+    '?': '&#x3f;',
+    '!': '&#x21;',
+    '#': '&#x23;',
+    '@': '&#x40;',
+    '*': '&#x2a;',
+    '\\': '&#092;',
+    '+': '&#x2b;',
+    '-': '&#x2d;',
+};
 export const dangerousCharToEntity = (str: string) => {
     if (!str) return "";
     return str.replace(
         /[<>/&|"'`;=%?!#@*\\\+\-]/g, 
-        function (match) {
-            const escape: { [key: string]: string } = {
-                '<': '&lt;',
-                '>': '&gt;',
-                '/': '&#x2f;',
-                '&': '&amp;',
-                '|': '&#x7c;',
-                '"': '&quot;',
-                "'": '&#x27;',
-                '`': '&#x60;',
-                ';': '&#059;',
-                '=': '&#x3d;',
-                '%': '&#x25;',
-                '?': '&#x3f;',
-                '!': '&#x21;',
-                '#': '&#x23;',
-                '@': '&#x40;',
-                '*': '&#x2a;',
-                '\\': '&#092;',
-                '+': '&#x2b;',
-                '-': '&#x2d;',
-            };
-            return escape[match];
-        }
+        (match) => escapeToEntity[match]
     );  
 }
+//■[ エンティティ化を元に ]
+const unescape: { [key: string]: string } = {
+    '&lt;': '<',
+    '&gt;': '>',
+    '&#x2f;': '/',
+    '&amp;': '&',
+    '&#x7c;': '|',
+    '&quot;': '"',
+    '&#x27;': "'",
+    '&#x60;': '`',
+    '&#059;': ';',
+    '&#x3d;': '=',
+    '&#x25;': '%',
+    '&#x3f;': '?',
+    '&#x21;': '!',
+    '&#x23;': '#',
+    '&#x40;': '@',
+    '&#x2a;': '*',
+    '&#092;': '\\',
+    '&#x2b;': '+',
+    '&#x2d;': '-',
+};
 export const entityToDangerousChar = (str: string) => {
     if (!str) return "";
     return str.replace(
         /(&lt;|&gt;|&#x2f;|&amp;|&#x7c;|&quot;|&#x27;|&#x60;|&#059;|&#x3d;|&#x25;|&#x3f;|&#x21;|&#x23;|&#x40;|&#x2a;|&#092;|&#x2b;|&#x2d;)/g,
-        function (match) {
-            const unescape: { [key: string]: string } = {
-                '&lt;': '<',
-                '&gt;': '>',
-                '&#x2f;': '/',
-                '&amp;': '&',
-                '&#x7c;': '|',
-                '&quot;': '"',
-                '&#x27;': "'",
-                '&#x60;': '`',
-                '&#059;': ';',
-                '&#x3d;': '=',
-                '&#x25;': '%',
-                '&#x3f;': '?',
-                '&#x21;': '!',
-                '&#x23;': '#',
-                '&#x40;': '@',
-                '&#x2a;': '*',
-                '&#092;': '\\',
-                '&#x2b;': '+',
-                '&#x2d;': '-',
-            };
-            return unescape[match];
-        }
+        ( match ) => unescape[match]
     );
 }
 

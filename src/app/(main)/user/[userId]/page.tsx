@@ -52,5 +52,4 @@ const UserPage = async({
     </div>
   )
 }
-
 export default UserPage;
