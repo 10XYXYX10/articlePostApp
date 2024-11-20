@@ -39,7 +39,9 @@ const UserPage = async({
       >
         createArticle
       </Link>
-
+      <p>page:{page}</p>
+      <p>sort:{sort}</p>
+      
       {/* <Suspense fallback={<Spinner/>}>
         <PostList
           userId={userId}
