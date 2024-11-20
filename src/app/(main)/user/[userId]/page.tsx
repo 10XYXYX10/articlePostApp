@@ -1,6 +1,6 @@
-import PostList from "@/components/post/PostList";
-import { Suspense } from "react";
-import Spinner from "@/components/Spinner";
+// import PostList from "@/components/post/PostList";
+// import { Suspense } from "react";
+// import Spinner from "@/components/Spinner";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { dangerousCharToSpace } from "@/lib/functions/myValidation";
@@ -15,7 +15,7 @@ const UserPage = async({
   //////////
   //◆【パラメーターの調整：「userId,search,sort,page」】
   //■[ userId ]
-  const userId = params.userId as number;
+  const userId = Number(params.userId);
   if(!userId)notFound();
   //■[ search ]
   let initialSearchVal = searchParams.search ? searchParams.search : "";
@@ -40,7 +40,7 @@ const UserPage = async({
         createArticle
       </Link>
 
-      <Suspense fallback={<Spinner/>}>
+      {/* <Suspense fallback={<Spinner/>}>
         <PostList
           userId={userId}
           search={initialSearchVal}
@@ -48,7 +48,7 @@ const UserPage = async({
           page={page}
           path={`/user/${userId}/edit/`}
         />
-      </Suspense>
+      </Suspense> */}
     </div>
   )
 }

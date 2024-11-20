@@ -7,7 +7,7 @@ export async function GET() {
         //////////
         //■[ セキュリティー ]
         const {result,data,message} = await security();
-        if(!result)throw new Error(message)
+        if(!result)return NextResponse.json( {message:'Authentication error.'}, { status: 401});
         if(!data)throw new Error('Something went wrong.')
 
         //////////
