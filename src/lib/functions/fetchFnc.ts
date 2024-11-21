@@ -127,7 +127,7 @@ export const getAllPostIds = async():Promise<{
             select:{
                 id:true
             },
-            take:3
+            take:1
         });
         return {
             result:true,
