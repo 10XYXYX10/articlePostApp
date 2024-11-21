@@ -29,34 +29,24 @@ const PostSingle = async({
             {post.title}
             </h1>
             <div className="m-3">
-                <img src={imagePath}/>
-            <Image
-                className="rounded-md"
-                src={imagePath}
-                alt={'XX：'+post.title}
-                width={width}
-                height={height}
-                quality={100}
-                unoptimized
-            />
-            <Image
-                className="rounded-md"
-                src={imagePath}
-                alt={post.title}
-                width={width}
-                height={height}
-                quality={100}
-            />
+                <Image
+                    className="rounded-md"
+                    src={imagePath}
+                    alt={post.title}
+                    width={width}
+                    height={height}
+                    quality={100}
+                />
             </div>
             <div>
-            <ReactMarkdown
-                className='markdown-body p-3'
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeSanitize]}
-            >
-                {/*この処理が無いと、「\n」が改行として処理されず、そのまま出力されてしまう*/}
-                {post.content && content.replace(/\\n/g, '\n')} 
-            </ReactMarkdown>
+                <ReactMarkdown
+                    className='markdown-body p-3'
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeSanitize]}
+                >
+                    {/*この処理が無いと、「\n」が改行として処理されず、そのまま出力されてしまう*/}
+                    {post.content && content.replace(/\\n/g, '\n')} 
+                </ReactMarkdown>
             </div>
         </div>
     )
