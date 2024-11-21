@@ -1,6 +1,6 @@
-// import PostList from "@/components/post/PostList";
-// import { Suspense } from "react";
-// import Spinner from "@/components/Spinner";
+import PostList from "@/components/post/PostList";
+import { Suspense } from "react";
+import Spinner from "@/components/Spinner";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { dangerousCharToSpace } from "@/lib/functions/myValidation";
@@ -39,10 +39,8 @@ const UserPage = async({
       >
         createArticle
       </Link>
-      <p>page:{page}</p>
-      <p>sort:{sort}</p>
-      
-      {/* <Suspense fallback={<Spinner/>}>
+
+      <Suspense fallback={<Spinner/>}>
         <PostList
           userId={userId}
           search={initialSearchVal}
@@ -50,7 +48,7 @@ const UserPage = async({
           page={page}
           path={`/user/${userId}/edit/`}
         />
-      </Suspense> */}
+      </Suspense>
     </div>
   )
 }
