@@ -15,7 +15,6 @@ export default function Error({
     }else{
       console.error(error)
     }
-    console.error(error)
   }, [error])
 
   return (
@@ -31,7 +30,6 @@ export default function Error({
               error.message
             )
           }
-          <p>{error.message}</p>
         </p>
         <button onClick={() => reset()} className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Try again</button>
       </div>
