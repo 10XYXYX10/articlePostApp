@@ -10,7 +10,8 @@ export const middleware = async(request: NextRequest) => {
 
   const pathName = request.nextUrl.pathname;
   const userId = Number(pathName.split('/')[2]);//「/user/<認証済みuserId>」
-  
+  console.log(`userId:${userId}`)
+
   // if(!result || userId!=data?.id){    
   //   const redirectUrl = request.nextUrl.clone();
   //   redirectUrl.pathname = '/auth';
