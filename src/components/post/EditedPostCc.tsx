@@ -30,7 +30,7 @@ const EditedPostCc = ({
     const [thumbnail,setThumbnail] = useState<Thumbnail|null>(post.Thumbnail);
     const [formData,setFormData] = useState<PostForm>({
         title:[post.title,''],
-        description:[post.description,''],
+        description:[post.description??'',''],
     });
     const [markdownFormData,setMarkdownFormData] = useState<MarkdownForm>({
         content:[content, ''],
