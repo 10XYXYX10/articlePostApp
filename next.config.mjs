@@ -11,7 +11,7 @@ const nextConfig = {
             key: "Access-Control-Allow-Origin",
             // すべてのオリジンを許可するなら * (アスタリスク)
             // ただセキュリティ的にはよろしくないので注意
-            value: "https://article-post-app.vercel.app/",
+            value: "https://www.lone-programmer-app.com/",
           },
           {
             // 許可するメソッド
