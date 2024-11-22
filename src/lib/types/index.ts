@@ -52,7 +52,7 @@ export type MarkdownForm = {
 export type PostWithThumbnail =  {
     id: number;
     title: string;
-    description: string;
+    description?: string;
     content?: string;
     thumbnailId: number | null;
     Thumbnail: Thumbnail | null;
@@ -83,7 +83,7 @@ export type OptionObType = {
     select: {
         id: true,
         title: true,
-        description: true,
+        description?: true,
         thumbnailId: true,
         Thumbnail:true,
         userId: true,

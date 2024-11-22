@@ -26,7 +26,6 @@ export const getPostWithThumbnailList = cache(async({
             select:{
                 id: true,
                 title: true,
-                description: true,
                 thumbnailId: true,
                 Thumbnail:true,
                 userId: true,

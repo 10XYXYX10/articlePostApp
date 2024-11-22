@@ -83,7 +83,7 @@ export async function generateMetadata({params}:{params:{id:number}}): Promise<M
   //////////
   //■[ data ]
   const title = post.title;
-  const description = post.description
+  const description = post.description ? post.description : '';
   const publishedTime = new Date(post.createdAt).toISOString();
   const modifiedTime = post.updatedAt ? new Date(post.updatedAt).toISOString() : publishedTime;
   
