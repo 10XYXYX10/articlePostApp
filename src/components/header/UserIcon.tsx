@@ -36,7 +36,7 @@ const UserIcon = () => {
             }
         }
         fetchData();
-    },[])
+    },[])//build時にwarningが出ますが、依存配列は空にしておいて下さい。
 
     return (
         <div className='flex space-x-3'>

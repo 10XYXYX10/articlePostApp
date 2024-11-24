@@ -36,24 +36,6 @@ const getOnePost = async(postId:number):Promise<PostWithThumbnail> => {
 //   if(message==='404 not found.')notFound();
 //   if(!result || !data)throw new Error(message);
 //   return data;
-
-//   // //■[ SSGが適用されない場合は、「force-cache」を強引に明記して、SSGを適用させる ]
-//   // try{
-//   //     const res = await fetch(
-//   //         `${apiUrl}/post/${postId}`,
-//   //         {
-//   //             cache: 'force-cache'
-//   //         }
-//   //     );
-//   //     if (!res.ok) throw new Error('Failed to fetch data in server')// HTTPステータスコードが400以上の場合、エラーとして処理
-//   //     const postData:PostWithThumbnail = await res.json();
-//   //     return postData;
-//   // }catch(err){
-//   //     console.log(err instanceof Error ? err.message : `Internal Server Error.`);
-//   //     const {result,message,data} = await getPostWithThumbnail(Number(postId));
-//   //     if(!result || !data)throw new Error(message);
-//   //     return data;
-//   // }
 // }
 
 const PostIdPage = async({
