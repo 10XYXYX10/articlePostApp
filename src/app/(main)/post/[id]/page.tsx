@@ -1,4 +1,4 @@
-//import { getAllPostIds,getPostWithThumbnail } from "@/lib/functions/fetchFnc";
+import { getAllPostIds } from "@/lib/functions/fetchFnc";
 import { PostWithThumbnail } from "@/lib/types";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -7,13 +7,13 @@ import PostSingle from "@/components/post/PostSingle";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL as string;
 const mediaPath = process.env.NEXT_PUBLIC_MEDIA_PATH as string;
 
-// export async function generateStaticParams() {
-//   const {result,message,data} = await getAllPostIds();
-//   if(!result || !data)throw new Error(message);
-//   return data.map(({id}) => ({
-//       id:id.toString()
-//   }));
-// }
+export async function generateStaticParams() {
+  const {result,message,data} = await getAllPostIds();
+  if(!result || !data)throw new Error(message);
+  return data.map(({id}) => ({
+      id:id.toString()
+  }));
+}
 
 const getOnePost = async(postId:number):Promise<PostWithThumbnail> => {
   const res = await fetch(
