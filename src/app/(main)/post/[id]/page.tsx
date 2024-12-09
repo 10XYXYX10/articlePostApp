@@ -19,8 +19,8 @@ const getOnePost = async(postId:number):Promise<PostWithThumbnail> => {
   const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/post/${postId}`,
       {
-          //cache: 'force-cache'
-          cache: 'no-store'
+          cache: 'force-cache'
+          //cache: 'no-store'
       }
   );
   if(res.status===404)notFound();
