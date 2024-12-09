@@ -1,0 +1,12 @@
+NEXT_PUBLIC_APP_URL='http://localhost:3000'
+NEXT_PUBLIC_API_URL='http://localhost:3000/api'
+#NEXT_PUBLIC_MEDIA_PATH=''
+DATABASE_URL=""
+# gmailUser=''
+# gmailPass=''
+# REGION_NAME="ap-northeast-1"
+# BUCKET_NAME="バケット名"
+# IAM_ACCESS_KEY=""
+# IAM_SECRET_KEY=""
+jwtHashKey='randomString'#任意のランダムな半角英数字の文字列
+NEXT_PUBLIC_FETCH_COUNT=4 #supabaseの無料利用枠を利用している場合、この値が大きすぎると、エラーになりがち(…Can't reach database serve…)

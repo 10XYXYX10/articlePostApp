@@ -73,8 +73,8 @@ export const validationForWord = (str:string,limit:number=20): {result:boolean, 
     // 長さ1～20の範囲
     if (str.length===0 || str.length>limit) return {result:false, message:`1～${limit}字以内の文字列を入力して下さい`}
 	//htmlエンティティ
-	const pattern = /[<>%"`';?&|=]/;
-	if(pattern.test(str))return{result:false, message:'「<>%"`\';?&|=」これらの文字列は使用不可です'};
+	const pattern = /[<>/&|"'`;=%?!#@*\\\+\-]/;
+	if(pattern.test(str))return{result:false, message:'半角「<>/&|"\'`;=%?!#@*\\+-」は使用不可。使用する場合、全角で！'};
     // 成功!!
     return {result:true,message:'success'}
 }
@@ -85,7 +85,7 @@ export const validationForEmail = (str:string): {result:boolean, message:string}
     if(str.length===0 || str.length>50)return {result:false, message:'1～50字以内のメールアドレを入力して下さい'};
     //email形式
     const emailRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const result = emailRegex.test(str);
+    const result = emailRegex.test(str)
     if(!result)return {result:false, message:'有効なメールアドレスの形式でありません'};
     // 成功!!
     return {result:true,message:'success'}

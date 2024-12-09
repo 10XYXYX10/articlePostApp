@@ -5,6 +5,7 @@ import { Thumbnail } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { deleteFile, saveFile } from "@/lib/s3";
 import { deleteThumbnails } from "./thumbnailFc";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
     try{
@@ -97,18 +98,33 @@ export async function DELETE(request: Request) {
         const targetThumbnail = await prisma.thumbnail.findUnique({
             where:{
                 id:thumbnailId
+            },
+            include:{
+                Post:true
             }
         });
         if(!targetThumbnail)return NextResponse.json( {message:'Bad request.'}, {status:400});
         if(targetThumbnail.userId != userId)return NextResponse.json( {message:'No permission'}, {status:401});
+        const targetPost = targetThumbnail.Post[0];
         
         //////////
-        //◆【transaction】
+        //■[ transaction ]
         await prisma.$transaction(async (prismaT) => {
             //対象のDB[thumbnai]削除
             await prismaT.thumbnail.delete({
                 where:{id:thumbnailId}
             });
+            //紐づいたPostを更新
+            if(targetPost){
+                await prismaT.post.update({
+                    where:{
+                        id:targetPost.id
+                    },
+                    data:{
+                        thumbnailId:null
+                    }
+                })
+            }
             //S3から対象の画像を削除
             const {result,message} = await deleteFile(targetThumbnail.path);
             if(!result)throw new Error(message);
@@ -121,6 +137,12 @@ export async function DELETE(request: Request) {
             throw new Error(message);
         });
         
+        //////////
+        //■[ revalidate ]
+        if(targetPost)revalidatePath(`/post/${targetPost.id}`);
+
+        //////////
+        //■[ return ]
         return NextResponse.json({message:'success!!'}, {status:200});
 
     }catch(err){

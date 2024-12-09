@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
         const requestBody = await request.json();
         const {title,description,content,thumbnailId} = requestBody;
         if(!title || !description || !content || !thumbnailId )return NextResponse.json( {message:`Bad request.`}, {status:400});
+        const thumbnailIdNum = Number(thumbnailId);
 
         //////////
         //■[ バリデーション ]
@@ -28,8 +29,16 @@ export async function POST(request: NextRequest) {
         validationResult = validationForWord(description,400);
         if( !validationResult.result)return NextResponse.json( {message:`Bad request.${validationResult.message}`}, {status:400});
         //content
-        if(content.length>4000)return NextResponse.json( {message:`Bad request. The content is limited to 4000 characters.`}, {status:400});
+        if(content.length>5000)return NextResponse.json( {message:`Bad request. The content is limited to 5000 characters.`}, {status:400});
         const contentRe = dangerousCharToEntity(content);
+        // thumbnailId
+        if(isNaN(thumbnailIdNum))return NextResponse.json( {message:`Bad request. The thumbnailId is not correct.`}, {status:400});
+        const thumbnail = await prisma.thumbnail.findUnique({
+            where:{
+                id:thumbnailIdNum
+            }
+        });
+        if(!thumbnail)return NextResponse.json( {message:`Bad request. The thumbnailId is not correct.`}, {status:400});
 
         //////////
         //■[ 同期：Article.process=runningで新規作成 ]
@@ -39,7 +48,7 @@ export async function POST(request: NextRequest) {
                 description,
                 content:contentRe,
                 userId,
-                thumbnailId:Number(thumbnailId),
+                thumbnailId:thumbnailIdNum,
             }
         });
 
@@ -67,6 +76,7 @@ export async function PUT(request: NextRequest) {
         const requestBody = await request.json();
         const {title,description,content,thumbnailId,postId} = requestBody;
         if(!title || !description || !content || !thumbnailId || !postId )return NextResponse.json( {message:`Bad request.`}, {status:400});
+        const thumbnailIdNum = Number(thumbnailId);
 
         //////////
         //■[ バリデーション ]
@@ -77,8 +87,17 @@ export async function PUT(request: NextRequest) {
         validationResult = validationForWord(description,400);
         if( !validationResult.result)return NextResponse.json( {message:`Bad request.${validationResult.message}`}, {status:400});
         //content
-        if(content.length>4000)return NextResponse.json( {message:`Bad request. The content is limited to 4000 characters.`}, {status:400});
+        if(content.length>5000)return NextResponse.json( {message:`Bad request. The content is limited to 5000 characters.`}, {status:400});
         const contentRe = dangerousCharToEntity(content);
+        // thumbnailId
+        if(isNaN(thumbnailIdNum))return NextResponse.json( {message:`Bad request. The thumbnailId is not correct.`}, {status:400});
+        const thumbnail = await prisma.thumbnail.findUnique({
+            where:{
+                id:thumbnailIdNum,
+                userId,
+            }
+        });
+        if(!thumbnail)return NextResponse.json( {message:`Bad request. The thumbnailId is not correct.`}, {status:400});
                 
         //////////
         //■[ 更新対象postの存在＆userIdの確認 ]
@@ -128,7 +147,10 @@ export async function DELETE(request: NextRequest) {
         //////////
         //■[ 更新対象postの存在＆userIdの確認 ]
         const targetPost = await prisma.post.findUnique({
-            where:{id:postId},
+            where:{
+                id:postId,
+                userId,
+            },
             include:{
                 Thumbnail:true,
             }

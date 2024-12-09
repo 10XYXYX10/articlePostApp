@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import useStore from "@/store"
 import { Thumbnail } from "@prisma/client"
 import SpinnerModal from "../SpinnerModal"
-import { inputClassVal } from "@/lib/tailwindClassValue"
 import MarkdownTextarea from "./MarkdownTextarea"
 import EditedThumbnail from "./thumbnail/EditedThumbnail"
 import { validationForWord } from "@/lib/functions/myValidation"
@@ -37,6 +36,7 @@ const EditedPostCc = ({
     });
 
     const handleUpdate = async () => {
+        setLoadingFlag(true);//ローディング状態でボタンを非活性に
         if(error)setError('');
     
         ///////////
@@ -57,8 +57,8 @@ const EditedPostCc = ({
           alertFlag = true;
         }
         //content
-        if(content[0].length>4000){
-            content[1]=`4000字以内でお願いします！(* +${content[0].length-4000})`;
+        if(content[0].length>5000){
+            content[1]=`5000字以内でお願いします！(* +${content[0].length-5000})`;
             alertFlag = true;
         }
         //title,description,contentのvalidation結果を反映
@@ -66,17 +66,18 @@ const EditedPostCc = ({
         setMarkdownFormData({content});
         if(alertFlag){
           setError('入力内容に問題があります');
+          setLoadingFlag(false);
           return alert('入力内容に問題があります');
         }
         //thumbnail
         if(!thumbnail){
             setError('サムネイルが未選択です');
+            setLoadingFlag(false);
             return alert('サムネイルが未選択です');
         }
 
         //////////
         //◆【通信】
-        setLoadingFlag(true);
         try {
             await axios.put<{articleId:number}>(
                 `${apiUrl}/user/post`,
@@ -88,21 +89,19 @@ const EditedPostCc = ({
                     postId:post.id,
                 }
             );
-            router.refresh();//Router Cacheをクリア
+            router.refresh();//Router Cacheをクリア：これがないと、Link経由で再度更新ページへ戻った際に、更新が反映されない
             alert('success');
         } catch (err) { 
             let message = 'Something went wrong. Please try again.';
             if (axios.isAxiosError(err)) {
                 if(err.response?.data.message)message = err.response.data.message;
                 //401,Authentication failed.
-                if(err.response?.status){
-                    if(err.response.status===401){
-                        setLoadingFlag(false);
-                        alert(message);
-                        resetUser();
-                        router.push('/auth');
-                        return;
-                    }
+                if(err.response?.status && err.response.status===401){
+                    setLoadingFlag(false);
+                    alert(message);
+                    resetUser();
+                    router.push('/auth');
+                    return;
                 }
             } else if (err instanceof Error) {
                 message = err.message;
@@ -114,12 +113,12 @@ const EditedPostCc = ({
     }
 
     const handleDelete = async () => {
-        if(error)setError('');
-    
         const confirmVal = confirm('本当に削除しますか？？');
         if(!confirmVal)return;
     
-        setLoadingFlag(true);
+        setLoadingFlag(true);//ローディング状態でボタンを非活性に
+        if(error)setError('');
+
         try{
             await axios.delete<{message:string}>(`${apiUrl}/user/post?postId=${post.id}`);
             router.push(`/user/${user.id}`);
@@ -130,14 +129,12 @@ const EditedPostCc = ({
             if (axios.isAxiosError(err)) {
                 if(err.response?.data.message)message = err.response.data.message;
                 //401,Authentication failed.
-                if(err.response?.status){
-                    if(err.response.status===401){
-                        setLoadingFlag(false);
-                        alert(message);
-                        resetUser();
-                        router.push('/auth');
-                        return;
-                    }
+                if(err.response?.status && err.response.status===401){
+                    setLoadingFlag(false);
+                    alert(message);
+                    resetUser();
+                    router.push('/auth');
+                    return;
                 }
             } else if (err instanceof Error) {
                 message = err.message;
@@ -172,7 +169,10 @@ const EditedPostCc = ({
                         type='text'
                         required={true}
                         placeholder="タイトル"
-                        className={`${formData.title[1]&&'border-red-500'} ${inputClassVal}`}
+                        className={`
+                            ${formData.title[1]&&'border-red-500'}
+                            bg-gray-100 shadow appearance-none break-all border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                        `}
                         onChange={(e)=>handleChange(e)}
                     />
                     {formData.title[1] && <span className='text-red-500 text-xs italic'>{formData.title[1]}</span>}
@@ -186,7 +186,10 @@ const EditedPostCc = ({
                         defaultValue={formData.description[0]}
                         required={true}
                         placeholder="description"
-                        className={`${formData.description[1]&&'border-red-500'} ${inputClassVal}`}
+                        className={`
+                            ${formData.description[1]&&'border-red-500'} 
+                            bg-gray-100 shadow appearance-none break-all border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                        `}
                         onChange={(e)=>handleChange(e)}
                         rows={5}
                     />

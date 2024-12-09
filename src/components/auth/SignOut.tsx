@@ -10,7 +10,7 @@ const initialState:SignOutState = {
 };
 
 const SignOut = () => {
-    //const [state, formAction] = useActionState(signIn, initialState);
+    //const [state, formAction,isPending ] = useActionState(signOut, initialState);//useActionStateでは、useFormStatusを用いなくとも、直接ペンディング状態を取得可能
     const [state, formAction] = useFormState(signOut, initialState);
 
     useEffect(()=>{
@@ -19,7 +19,7 @@ const SignOut = () => {
     },[state.error])
 
     const SubmitButton = () => {
-        const { pending } = useFormStatus();
+        const { pending } = useFormStatus();//useActionStateでは、useFormStatusを用いなくとも、直接ペンディング状態を取得可能
         return (
           <button
             type="submit"
@@ -33,7 +33,7 @@ const SignOut = () => {
 
     return (
         <form action={formAction}>
-            <SubmitButton/>
+          <SubmitButton/>
         </form>
     )
 }

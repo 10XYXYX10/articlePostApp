@@ -21,7 +21,7 @@ export const jwtAccessTokenEncode = async({
     data:string;
 }> => {
     try{
-        const jwtKeyUint8Array = new TextEncoder().encode(jwtKey);
+        const jwtKeyUint8Array = new TextEncoder().encode(jwtKey);// ← 関数の外で処理するよう修正した方が良いです
         const token = await new jose.SignJWT(objectData)
             .setProtectedHeader({ alg: 'HS256' })
             .setExpirationTime('1h')
@@ -53,7 +53,7 @@ export const jwtAccessTokenDecode = async ({
     data:string|jose.JWTPayload;
 }> => {
     try{
-        const jwtKeyUint8Array = new TextEncoder().encode(jwtKey);
+        const jwtKeyUint8Array = new TextEncoder().encode(jwtKey);// ← 関数の外で処理するよう修正した方が良いです
         const { payload } = await jose.jwtVerify(jwtEncoded, jwtKeyUint8Array);
         return {
             result:true,
@@ -114,7 +114,7 @@ export const security = async (jwtEncodedStr?:string):Promise<{
             });
             if(!checkUser){
                 if(jwtEncoded && !jwtEncodedStr)cookies().delete('accessToken');
-                throw new Error('Authentication error.'); 
+                throw new Error('Authentication error.');
             }            
         }
 
@@ -138,32 +138,6 @@ export const security = async (jwtEncodedStr?:string):Promise<{
         };
     }
 }
-
-// export const securityOnMiddleware = async (jwtEncoded:string|undefined):Promise<{
-//     result:boolean;
-//     authUser:AuthUser|null;
-//     message:string,
-// }> => {
-//     try{
-//         //■[ middlewareで、直で@prisma/clientを使用しようとするとエラーとなる ]
-//         //・@prisma/client/edge なら可能
-//         //・https://github.com/prisma/prisma/issues/21310    ←　DB セッションの代替手段としてJWTを使用することが提案されている
-//         const {data} = await axios.patch<{authUser:AuthUser}>(`${apiUrl}/auth`,{jwtEncoded});//middlewareで動かす場合、直で@prisma/clientを使用しようとするとエラーとなる
-//         if(!data.authUser)throw new Error('Something went wrong.');
-//         return {
-//             result:true,
-//             authUser:data.authUser,
-//             message:'success',
-//         }
-//     }catch(err){
-//         const errMessage = err instanceof Error ?  err.message : `Internal Server Error.`;
-//         return {
-//             result:false,
-//             authUser:null,
-//             message:errMessage,
-//         };
-//     }
-// }
 
 export const saveAccessTokenInCookies = async({
     id,

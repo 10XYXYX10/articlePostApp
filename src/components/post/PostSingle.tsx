@@ -1,10 +1,10 @@
+import Image from "next/image";
+import { PostWithThumbnail } from "@/lib/types";
 import { entityToDangerousChar } from "@/lib/functions/myValidation";
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import "@/app/github-markdown-light.css";
-import Image from "next/image";
-import { PostWithThumbnail } from "@/lib/types";
 
 const PostSingle = async({
     post
@@ -26,7 +26,7 @@ const PostSingle = async({
     return (
         <div className="m-2 p-2 pb-10 bg-gray-100">
             <h1 className="text-xl text-center text-blue-500 font-bold my-5 break-all">
-            {post.title}
+                {post.title}
             </h1>
             <div className="m-3">
                 <Image

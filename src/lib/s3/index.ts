@@ -12,11 +12,6 @@ const s3Client = new S3Client({
 //保存
 export const saveFile = async(Key:string, Body:Buffer): Promise<{result:boolean,message:string}> => {
     try{
-        new PutObjectCommand({
-            Bucket: bucketName,
-            Key,
-            Body,
-        })
         await s3Client.send(
             new PutObjectCommand({
                 Bucket: bucketName,

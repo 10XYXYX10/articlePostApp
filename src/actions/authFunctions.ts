@@ -18,7 +18,7 @@ export const signUp = async (state: SignUpFormState, formData: FormData) => {
         if(!name)state.valueError.name='Name is required';
         //・email
         const email = formData.get('email') as string;
-        if(!email)state.valueError.email='email is required';
+        if(!email)state.valueError.email='Email is required';
         //・password
         const password = formData.get('password') as string;
         if(!password)state.valueError.password='Password is required';
@@ -65,7 +65,7 @@ export const signUp = async (state: SignUpFormState, formData: FormData) => {
             where: {
                 verifiedEmail:false,
                 createdAt: {
-                    lt: new Date(Date.now() - 1000 * 60 * 4)//4分経過
+                    lt: new Date(Date.now() - 1000 * 60 * 4)//4分経過：認証パスワードの有効期限は3分
                 }
             }
         }).catch((err)=>console.log(err.message));
@@ -114,7 +114,7 @@ export const signUp = async (state: SignUpFormState, formData: FormData) => {
         //////////
         //■[ return(処理成功) ]
         state.email = email;
-        return state
+        return state;
         
     }catch(err){
         //////////
@@ -233,7 +233,7 @@ export const signIn = async (state: SignInFormState, formData: FormData) => {
 };
 
 
-//「signUp or signIn」→ SMS認証
+//「signUp or signIn」→ メール認証
 export const mailAuth = async (
     typeValue: 'SignUp'|'SignIn',
     state: MailAuthFormState,
@@ -247,7 +247,7 @@ export const mailAuth = async (
         const email = formData.get('email') as string;
         //authenticationPassword
         const authenticationPassword = formData.get('authenticationPassword') as string;
-        if(!authenticationPassword)state.valueError.authenticationPassword='authenticationPassword is required';
+        if(!authenticationPassword)state.valueError.authenticationPassword='AuthenticationPassword is required';
         //＊
         if(!email || !authenticationPassword){
             state.error = 'Bad request error.'
@@ -286,7 +286,7 @@ export const mailAuth = async (
           }
         });
         //Userが存在しない
-        if(!checkUser)throw new Error(`something went wrong. Please try again.`);
+        if(!checkUser)throw new Error(`Something went wrong. Please try again.`);
         userId = checkUser.id;
         //ログインを試みたが、メールアドレスの認証が未完了
         if(typeValue=='SignIn' && !checkUser.verifiedEmail)throw new Error('That user is disabled. SMS authentication has not been completed.');
@@ -336,8 +336,8 @@ export const signOut = async(state: SignOutState) => {
     try{
         //////////
         //■[ jwtをサーバーサイドcookieから削除 ]
-        const judge = cookies().get('accessToken');
-        if(judge)cookies().delete('accessToken');
+        const accessToken = cookies().get('accessToken');
+        if(accessToken)cookies().delete('accessToken');
 
     }catch(err){
         //////////

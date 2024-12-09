@@ -4,7 +4,6 @@ import { useFormState } from 'react-dom';
 import AlertError from '../AlertError';
 import { MailAuthFormState } from '@/lib/types';
 import { mailAuth } from '@/actions/authFunctions';
-import { inputClassVal, labelClassVal } from '@/lib/tailwindClassValue';
 import { SubmitButton } from '../SubmitButton';
 
 const initialState:MailAuthFormState = { 
@@ -46,14 +45,17 @@ const MailAuth = ({
                         defaultValue={email}
                     />
                     <div className="mb-4">
-                        <label className={`${labelClassVal}`}>6桁認証番号<em>*</em></label>
+                        <label className='block text-gray-700 text-md font-bold'>6桁認証番号<em>*</em></label>
                         <span className='text-xs text-gray-500'>6桁の半角数字を入力して下さい</span>
                         <input
                             name='authenticationPassword'
                             type='text'
                             required={true}
                             placeholder="認証パスワード"
-                            className={`${state.valueError.authenticationPassword&&'border-red-500'} ${inputClassVal}`}
+                            className={`
+                                ${state.valueError.authenticationPassword&&'border-red-500'} 
+                                bg-gray-100 shadow appearance-none break-all border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                            `}
                         />
                         {state.valueError.authenticationPassword&& 
                             <span className='text-red-500 text-xs italic'>

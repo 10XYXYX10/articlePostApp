@@ -26,9 +26,9 @@ const PostList = async({
 
   //////////
   //■[ next,prev ]
-  let queryParameter:string = `?page=${page}`;
+  let queryParameter:string = `page=${page}`;
   queryParameter+=`&sort=${sort}&`;
-  if(search)queryParameter+=`&search=${search}`;
+  if(search)queryParameter+=`search=${search}`;
   const url = userId
     ? new URL(`${appUrl}/user/${userId}?${queryParameter}`)
     : new URL(`${appUrl}?${queryParameter}`)
@@ -50,11 +50,11 @@ const PostList = async({
   }
 
   return (<>
-  <div className="p-1 mt-5 sm:p-5 sm:mt-0">
-    <div className="sm:flex sm:flex-wrap sm:items-stretch container mx-auto">
-      {data.slice(0,fetchCount).map( (post) => <Post post={post} path={path} key={post.id}/> )}
+    <div className="p-1 mt-5 sm:p-5 sm:mt-0">
+      <div className="sm:flex sm:flex-wrap sm:items-stretch container mx-auto">
+        {data.slice(0,fetchCount).map( (post) => <Post post={post} path={path} key={post.id}/> )}
+      </div>
     </div>
-  </div>
 
     <div className="flex justify-between items-center mt-5 mb-10">
           <span>

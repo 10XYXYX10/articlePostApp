@@ -123,7 +123,7 @@ const MarkdownTextarea = memo( ({
                         onClick={(e) => e.stopPropagation()}//イベント伝播を阻止
                         className={`
                             ${dispScreenNum===2 ? 'w-full' : 'hidden'} 
-                            md:w-1/2 md:block mx-1 p-1 bg-white rounded-sm h-[85vh] overflow-auto
+                            md:w-1/2 md:block mr-1 p-1 bg-white rounded-sm h-[85vh] overflow-auto
                         `}
                     >
                         <div className='min-w-[400px] mr-1'>

@@ -9,7 +9,6 @@ import SpinnerModal from "../SpinnerModal";
 import AlertError from "../AlertError";
 import useStore from "@/store";
 import { useRouter } from "next/navigation";
-import { inputClassVal } from "@/lib/tailwindClassValue";
 import { validationForWord } from "@/lib/functions/myValidation";
 
 const CreatePost = ({
@@ -32,6 +31,7 @@ const CreatePost = ({
     });
 
     const handleSubmit = async () => {
+        setLoadingFlag(true);
         if(error)setError('');
     
         ///////////
@@ -52,8 +52,8 @@ const CreatePost = ({
           alertFlag = true;
         }
         //content
-        if(content[0].length>4000){
-            content[1]=`4000字以内でお願いします！(* +${content[0].length-4000})`;
+        if(content[0].length>5000){
+            content[1]=`5000字以内でお願いします！(* +${content[0].length-5000})`;
             alertFlag = true;
         }
         //title,description,contentのvalidation結果を反映
@@ -61,17 +61,18 @@ const CreatePost = ({
             setFormData({title,description});
             setMarkdownFormData({content});
             setError('入力内容に問題があります');
+            setLoadingFlag(false);
             return alert('入力内容に問題があります');
         }
         //thumbnail
         if(!thumbnail){
             setError('サムネイルが未選択です');
+            setLoadingFlag(false);
             return alert('サムネイルが未選択です');
         }
 
         //////////
         //◆【通信】
-        setLoadingFlag(true);
         try {
             await axios.post(
                 `${apiUrl}/user/post`,
@@ -83,21 +84,22 @@ const CreatePost = ({
                 }
             );
             router.push(`/user/${user.id}`);
-            router.refresh();//Client-side Cacheをクリア ← この記述＆この順序でないと、主にトップページで更新が即座に反映されない場合が
-            console.log('router.push～router.refresh')
+            //■[ router.refresh() ]
+            //・クライアントサイドのキャッシュがクリアされ、サーバーから新しいRSCペイロードを取得
+            //この記述＆この順序でないと、主にトップページで更新が即座に反映されない場合が
+            router.refresh(); 
+            //console.log('router.push～router.refresh')
         } catch (err) { 
             let message = 'Something went wrong. Please try again.';
             if (axios.isAxiosError(err)) {
                 if(err.response?.data.message)message = err.response.data.message;
                 //401,Authentication failed.
-                if(err.response?.status){
-                    if(err.response.status===401){
-                        setLoadingFlag(false);
-                        alert(message);
-                        resetUser();
-                        router.push('/auth');
-                        return;
-                    }
+                if(err.response?.status && err.response.status===401){
+                    setLoadingFlag(false);
+                    alert(message);
+                    resetUser();
+                    router.push('/auth');
+                    return; 
                 }
             } else if (err instanceof Error) {
                 message = err.message;
@@ -109,8 +111,8 @@ const CreatePost = ({
     }
 
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
-        const inputVal = e.target.value;
         const inputName = e.target.name;
+        const inputVal = e.target.value;
         setFormData({...formData,[inputName]:[inputVal,'']})
     }
 
@@ -132,7 +134,10 @@ const CreatePost = ({
                         type='text'
                         required={true}
                         placeholder="タイトル"
-                        className={`${formData.title[1]&&'border-red-500'} ${inputClassVal}`}
+                        className={`
+                            ${formData.title[1]&&'border-red-500'} 
+                            bg-gray-100 shadow appearance-none break-all border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                        `}
                         onChange={(e)=>handleChange(e)}
                     />
                     {formData.title[1] && <span className='text-red-500 text-xs italic'>{formData.title[1]}</span>}
@@ -145,7 +150,10 @@ const CreatePost = ({
                         name='description'
                         required={true}
                         placeholder="description"
-                        className={`${formData.description[1]&&'border-red-500'} ${inputClassVal}`}
+                        className={`
+                            ${formData.description[1]&&'border-red-500'} 
+                            bg-gray-100 shadow appearance-none break-all border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                        `}
                         onChange={(e)=>handleChange(e)}
                         rows={5}
                     />

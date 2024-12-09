@@ -3,6 +3,7 @@ import axios from "axios";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, Dispatch, SetStateAction, memo, useEffect, useRef, useState } from "react"
+const mediaPath = process.env.NEXT_PUBLIC_MEDIA_PATH || '';//NEXT_PUBLIC_MEDIA_PATHが有効でない場合は、空の文字列が代入される
 
 const imageSize = async (file:File): Promise<
     {width:number,height:number,src:string} | Error
@@ -10,18 +11,16 @@ const imageSize = async (file:File): Promise<
     return new Promise((resolve, reject) => {
         const img = new Image();
         const objectUrl = URL.createObjectURL(file);
-        console.log(`createObjectURL:${objectUrl}`)
+        console.log(`createObjectURL:${objectUrl}`)//revokeの動作確認のために記述しています。動作確認以降は、削除して下さい。
         img.onload = () => {
             const width = img.naturalWidth;
             const height = img.naturalHeight;
             let message = '';
             //widhtとheightの値に応じて、エラーハンドリング
             if(width<200 || width>500){
-                message = '*widthが200px以上の画像をアップロードして下さい。';
-                if(width>500)message = '*widthが500px以下の画像をアップロードして下さい。';
+                message = width<200 ? '*widthが200px以上の画像をアップロードして下さい。' : '*widthが500px以下の画像をアップロードして下さい。';
             }else if(height<200 || height>400){
-                message = '*heightが200px以上の画像をアップロードして下さい。';
-                if(height>500)message = '*heightが500px以下の画像をアップロードして下さい。';
+                message = height<200 ? '*heightが200px以上の画像をアップロードして下さい。' : '*heightが400px以下の画像をアップロードして下さい。';
             }else if(height > width){
                 message = '*縦長の画像はアップロード出来ません。';
             }
@@ -40,7 +39,7 @@ const imageSize = async (file:File): Promise<
         img.onerror = (err) => {
             const message = err instanceof Error ? err.message : 'Somethin went wrong.';
             URL.revokeObjectURL(objectUrl); // エラーが発生した場合オブジェクトURLを解放
-            console.log(`revokeObjectURL:${objectUrl}`)
+            console.log(`revokeObjectURL:${objectUrl}`)//revokeの動作確認のために記述しています。動作確認以降は、削除して下さい。
             reject(new Error(message))
         };
         img.src = objectUrl;
@@ -68,7 +67,7 @@ const EditedThumbnail = memo( ({
             ? {
                 width:thumbnail.width,
                 height:thumbnail.height,
-                src:process.env.NEXT_PUBLIC_MEDIA_PATH+thumbnail.path,
+                src:mediaPath+thumbnail.path,
                 type:thumbnail.type,
 
             }
@@ -78,8 +77,9 @@ const EditedThumbnail = memo( ({
     //imageDataの変更を監視し、適切にクリーンアップ
     useEffect(() => {
         return () => {
-            if(imageData && imageData.src && !imageData.src.startsWith(process.env.NEXT_PUBLIC_MEDIA_PATH || '')) {
-                console.log(`useEffect > revokeObjectURL:${imageData.src}`)
+            //createObjectURLで生成されたURLパスの先頭は、アプリケーションを表示しているルートURLで始まります
+            if(imageData && imageData.src && !imageData.src.startsWith(mediaPath)) {
+                console.log(`useEffect > revokeObjectURL:${imageData.src}`)//revokeの動作確認のために記述しています。動作確認以降は、削除して下さい。
                 URL.revokeObjectURL(imageData.src);
             }
         };
@@ -157,7 +157,7 @@ const EditedThumbnail = memo( ({
                 }
             );
             setThumbnail(data);
-            setImageData({...imageData, src:process.env.NEXT_PUBLIC_MEDIA_PATH+data.path})
+            setImageData({...imageData, src:mediaPath+data.path})
             if(inputFileRef.current)inputFileRef.current.value="";
             alert('success');
         } catch (err) { 
@@ -197,6 +197,7 @@ const EditedThumbnail = memo( ({
             setThumbnail(null);
             setImageData(null);
             if(inputFileRef.current)inputFileRef.current.value="";
+            router.refresh();
             alert('OK');
         } catch (err) { 
             let message = 'Something went wrong. Please try again.';

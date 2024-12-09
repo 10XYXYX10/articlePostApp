@@ -1,7 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  //binaryTargets = ["native", "rhel-openssl-1.0.x"] //この記述がないと、Amplifyデプロイ時にエラーとなる
-  //Invalid `prisma.post.findMany()` invocation: Prisma Client could not locate the Query Engine for runtime "rhel-openssl-1.0.x". This happened because Prisma Client was generated for "rhel-openssl-3.0.x", but the actual deployment required "rhel-openssl-1.0.x". Add "rhel-openssl-1.0.x" to `binaryTargets` in the "schema.prisma" file and run `prisma generate` after saving it: generator client { provider = "prisma-client-js" binaryTargets = ["native", "rhel-openssl-1.0.x"] } The following locations have been searched
 }
 
 datasource db {
