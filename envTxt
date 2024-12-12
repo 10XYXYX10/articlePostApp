@@ -1,6 +1,6 @@
 NEXT_PUBLIC_APP_URL='http://localhost:3000'
 NEXT_PUBLIC_API_URL='http://localhost:3000/api'
-#NEXT_PUBLIC_MEDIA_PATH=''
+#NEXT_PUBLIC_MEDIA_PATH=''#末尾の「/」を忘れずに
 DATABASE_URL=""
 # gmailUser=''
 # gmailPass=''

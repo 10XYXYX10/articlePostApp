@@ -5,7 +5,7 @@ export async function GET(request: Request,{params}:{params:{id:string}}) {
     try{
         //////////
         //■[ クエリパラメータprocessの値で処理を分岐 ]
-         const postId = Number(params.id);
+        const postId = Number(params.id);
 
         //////////
         //■[ データ取得～return ]

@@ -64,7 +64,10 @@ const SearchForm = () => {
                 currentSearch = currentSearch.replace(/\%20/g, ' ').replace(/ +/g, ' ');
                 currentSearch = currentSearch.trim();
                 if(currentSearch)pushUrl += `&search=${currentSearch}`;
-                if(showModal)setShowModal(false);
+                if(showModal){
+                    currentInputSearch.blur();//フォーカスを外す
+                    setShowModal(false);
+                }
             }
             //遷移
             router.push(pushUrl)

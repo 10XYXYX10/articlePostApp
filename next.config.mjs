@@ -11,7 +11,7 @@ const nextConfig = {
             key: "Access-Control-Allow-Origin",
             // すべてのオリジンを許可するなら * (アスタリスク)
             // ただセキュリティ的にはよろしくないので注意
-            value: "https://article-post-app.vercel.app/",
+            value: "https://www.lone-programmer-app.com/",//「https://www.自身のドメイン」
           },
           {
             // 許可するメソッド
@@ -32,7 +32,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'articlepostappv2.s3.ap-northeast-1.amazonaws.com',
+        hostname: 'static.lone-programmer-app.com',
         port: '',
         pathname: '/**',
       },
