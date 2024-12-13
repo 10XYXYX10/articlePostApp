@@ -2,7 +2,7 @@ import { getPostWithThumbnailList } from "@/lib/functions/fetchFnc"
 import { IconArrowBigLeftLine, IconArrowBigRightLine } from "@tabler/icons-react";
 import Link from "next/link";
 import Post from "./Post";
-const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 10;
+const fetchCount = process.env.NEXT_PUBLIC_FETCH_COUNT ? Number(process.env.NEXT_PUBLIC_FETCH_COUNT) : 4;
 const appUrl = process.env.NEXT_PUBLIC_APP_URL as string;
 
 const PostList = async({
